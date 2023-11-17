@@ -1,4 +1,4 @@
-package com.chang.log.controller.user;
+package com.chang.log.controller;
 
 import com.chang.log.request.user.SignUp;
 import com.chang.log.service.UserService;

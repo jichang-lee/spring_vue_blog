@@ -9,6 +9,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
@@ -20,6 +22,8 @@ class UserServiceTest {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
     @AfterEach
@@ -47,7 +51,8 @@ class UserServiceTest {
         //then
         Assertions.assertEquals(1,userRepository.count());
         Assertions.assertEquals("jichang@naver.com",user.getEmail());
-        Assertions.assertEquals("1234",user.getPassword());
+//        Assertions.assertEquals("1234",user.getPassword());
+        Assertions.assertTrue(passwordEncoder.matches("1234", user.getPassword()));
         Assertions.assertEquals("이지창",user.getName());
 
     }

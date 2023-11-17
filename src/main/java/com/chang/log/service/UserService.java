@@ -5,6 +5,7 @@ import com.chang.log.exception.AlreadyExistsEmail;
 import com.chang.log.repository.UserRepository;
 import com.chang.log.request.user.SignUp;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -14,7 +15,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-
+    private final PasswordEncoder passwordEncoder;
 
     public void signUp(SignUp signUp) {
 
@@ -23,11 +24,13 @@ public class UserService {
         if(byEmail.isPresent()){
             throw new AlreadyExistsEmail();
         }
+
         //2. passwordEncoder
+        String encrypt = passwordEncoder.encode(signUp.getPassword());
 
         User user = User.builder()
                 .email(signUp.getEmail())
-                .password(signUp.getPassword())
+                .password(encrypt)
                 .name(signUp.getName())
                 .build();
 
