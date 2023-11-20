@@ -1,0 +1,23 @@
+= 창로그 API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+== 회원가입
+
+=== 요청
+
+include::{snippets}/user/user-signup/http-request.adoc[]
+include::{snippets}/user/user-signup/request-fields.adoc[]
+
+
+=== 응답
+
+include::{snippets}/user/user-signup/http-response.adoc[]
+
+=== CURL
+
+include::{snippets}/user/user-signup/curl-request.adoc[]
