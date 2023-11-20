@@ -5,14 +5,14 @@ import lombok.Builder;
 import lombok.Data;
 
 @Data
-public class profileUpload {
+public class ProfileUpload {
 
     private String url;
     private User user;
 
 
     @Builder
-    public profileUpload(String url , User user) {
+    public ProfileUpload(String url , User user) {
         this.url = url;
         this.user = user;
     }

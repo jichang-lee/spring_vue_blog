@@ -39,4 +39,11 @@ public class User {
         this.password = password;
         this.createAt = LocalDate.now();
     }
+
+    public void edit(String name, String email, String password) {
+        this.name = name;
+        this.email = email;
+        this.password = password;
+        this.createAt = LocalDate.now();
+    }
 }

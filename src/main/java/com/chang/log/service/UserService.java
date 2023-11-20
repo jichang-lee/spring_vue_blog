@@ -2,13 +2,20 @@ package com.chang.log.service;
 
 import com.chang.log.domain.User;
 import com.chang.log.exception.AlreadyExistsEmail;
+import com.chang.log.exception.UserNotFound;
 import com.chang.log.repository.UserRepository;
 import com.chang.log.request.user.SignUp;
+import com.chang.log.request.user.UserEditor;
+import com.chang.log.request.user.UserResponse;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +42,33 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
+
     }
 
+    @Transactional
+    public void userEdit(Long userId , UserEditor userEditor){
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(UserNotFound::new);
+        String encrypt = passwordEncoder.encode(userEditor.getPassword());
+
+           user.edit(userEditor.getName(),
+                   userEditor.getEmail(),
+                   encrypt);
+    }
+    public void userDelete(Long userId){
+        User findUser = userRepository.findById(userId)
+                .orElseThrow(UserNotFound::new);
+
+        userRepository.delete(findUser);
+    }
+
+    public List<UserResponse> userList(){
+        List<User> users = userRepository.findAll();
+
+       return users.stream()
+                .map(UserResponse::new)
+                .collect(Collectors.toList());
+    }
 
 }

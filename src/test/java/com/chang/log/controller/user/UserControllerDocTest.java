@@ -1,7 +1,9 @@
 package com.chang.log.controller.user;
 
+import com.chang.log.domain.User;
 import com.chang.log.repository.UserRepository;
 import com.chang.log.request.user.SignUp;
+import com.chang.log.request.user.UserEditor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,13 +17,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.restdocs.RestDocumentationContextProvider;
 import org.springframework.restdocs.RestDocumentationExtension;
 import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation;
+import org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders;
 import org.springframework.restdocs.payload.PayloadDocumentation;
+import org.springframework.restdocs.request.RequestDocumentation;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -64,7 +71,7 @@ class UserControllerDocTest {
                 .contentType(APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk())
-                .andDo(MockMvcRestDocumentation.document("user/user-signup",
+                .andDo(MockMvcRestDocumentation.document("/user/user-signup",
                         PayloadDocumentation.requestFields(
                         PayloadDocumentation.fieldWithPath("name").description("성명"),
                         PayloadDocumentation.fieldWithPath("email").description("이메일"),
@@ -74,5 +81,61 @@ class UserControllerDocTest {
 
     }
 
+    @Test
+    @DisplayName("회원수정")
+    void userEditSuccess() throws Exception{
+        User user = User.builder()
+                .name("이지창")
+                .email("jichang@naver.com")
+                .password("1234")
+                .build();
+
+        userRepository.save(user);
+
+        UserEditor userEditor = UserEditor.builder()
+                .name("삼지창")
+                .email("jichang@naver.com")
+                .password("1234")
+                .build();
+        String json = objectMapper.writeValueAsString(userEditor);
+
+        mockMvc.perform(patch("/user/edit/{userId}",user.getId())
+                        .contentType(APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andDo(MockMvcRestDocumentation.document("user/user-edit",
+                        RequestDocumentation.pathParameters(
+                                RequestDocumentation.parameterWithName("userId").description("회원 ID")
+                        ),
+                        PayloadDocumentation.requestFields(
+                                PayloadDocumentation.fieldWithPath("name").description("성명"),
+                                PayloadDocumentation.fieldWithPath("email").description("이메일"),
+                                PayloadDocumentation.fieldWithPath("password").description("비밀번호")
+                        )
+                        ));
+
+    }
+
+    @Test
+    @DisplayName("회원 탈퇴")
+    void userDelete() throws Exception {
+        //given
+        User user = User.builder()
+                .name("이지창")
+                .email("jicahng@naver.com")
+                .password("1234")
+                .build();
+        userRepository.save(user);
+
+        //expected
+        mockMvc.perform(RestDocumentationRequestBuilders.delete("/user/delete/{userId}",user.getId())
+                        .contentType(APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andDo(MockMvcRestDocumentation.document("/user/user-delete",
+                        RequestDocumentation.pathParameters(
+                                RequestDocumentation.parameterWithName("userId").description("회원 ID")
+                        )
+                ));
+    }
 
 }

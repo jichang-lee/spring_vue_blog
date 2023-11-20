@@ -1,12 +1,13 @@
 package com.chang.log.controller;
 
 import com.chang.log.request.user.SignUp;
+import com.chang.log.request.user.UserEditor;
+import com.chang.log.request.user.UserResponse;
 import com.chang.log.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,9 +21,21 @@ public class UserController {
         userService.signUp(signUp);
     }
 
-    @PostMapping("/edit")
-    public void userEdit(){
-
+    @PatchMapping("/edit/{userId}")
+    public void userEdit(@PathVariable Long userId , @RequestBody UserEditor userEditor){
+        userService.userEdit(userId,userEditor);
     }
+
+    @GetMapping("/list")
+    public List<UserResponse> userList(){
+        return userService.userList();
+    }
+
+    @DeleteMapping("/delete/{userId}")
+    public void userDelete(@PathVariable Long userId){
+        userService.userDelete(userId);
+    }
+
+
 
 }
