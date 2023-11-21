@@ -93,32 +93,25 @@ class UserControllerTest {
     }
 
     @Test
-    @DisplayName("회원 조회")
-    void userList() throws Exception{
+    @DisplayName("회원 단건 조회 (마이페이지)")
+    void findUser() throws Exception{
         //given
-        List<User> userList = IntStream.range(0,10)
-                .mapToObj(i -> User.builder()
-                        .name("지창" + i)
-                        .email("email@jicahng" + i)
-                        .password("1234" + i)
-                        .build()
-                ).collect(Collectors.toList());
+        User user = User.builder()
+                .name("이지창")
+                .email("jichang@naver.com")
+                .password("1234")
+                .build();
 
-        userRepository.saveAll(userList);
-
+        userRepository.save(user);
 
         //expected
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/list")
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/myPage/{userId}",user.getId())
                 .contentType(APPLICATION_JSON))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(jsonPath("$.length()", Matchers.is(10)))
-//                .andExpect(jsonPath("$[0].id",Matchers.notNullValue()))
-//                .andExpect(jsonPath("$[0].name").value("지창0"))
-//                .andExpect(jsonPath("$[0]"))
-//                .andExpect(jsonPath("$[0]"))
-                .andDo(MockMvcResultHandlers.print());
-
-        //회원 삭제되는 문제 ********
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("이지창"))
+                .andExpect(jsonPath("$.email").value("jichang@naver.com"))
+                .andExpect(jsonPath("$.password").value(user.getPassword()))
+                .andDo(print());
     }
 
     @Test

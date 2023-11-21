@@ -26,9 +26,9 @@ public class UserController {
         userService.userEdit(userId,userEditor);
     }
 
-    @GetMapping("/list")
-    public List<UserResponse> userList(){
-        return userService.userList();
+    @GetMapping("/myPage/{userId}")
+    public UserResponse myPage(@PathVariable Long userId){
+        return userService.findUser(userId);
     }
 
     @DeleteMapping("/delete/{userId}")

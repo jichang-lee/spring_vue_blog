@@ -63,12 +63,15 @@ public class UserService {
         userRepository.delete(findUser);
     }
 
-    public List<UserResponse> userList(){
-        List<User> users = userRepository.findAll();
+   public UserResponse findUser(Long userId){
+       User user = userRepository.findById(userId)
+               .orElseThrow(UserNotFound::new);
 
-       return users.stream()
-                .map(UserResponse::new)
-                .collect(Collectors.toList());
-    }
+       return UserResponse.builder()
+                .name(user.getName())
+                .email(user.getEmail())
+                .password(user.getPassword())
+                .build();
+   }
 
 }

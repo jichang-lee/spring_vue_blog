@@ -12,7 +12,7 @@ public class UserResponse {
     private String password;
 
     @Builder
-    public UserResponse(User user) {
+    public UserResponse(String name,String email,String password) {
         this.name = name;
         this.email = email;
         this.password = password;

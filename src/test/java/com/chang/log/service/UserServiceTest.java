@@ -13,9 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,11 +52,11 @@ class UserServiceTest {
         User user = userRepository.findAll().iterator().next();
 
         //then
-        Assertions.assertEquals(1,userRepository.count());
-        Assertions.assertEquals("jichang@naver.com",user.getEmail());
+        assertEquals(1,userRepository.count());
+        assertEquals("jichang@naver.com",user.getEmail());
 //        Assertions.assertEquals("1234",user.getPassword());
-        Assertions.assertTrue(passwordEncoder.matches("1234", user.getPassword()));
-        Assertions.assertEquals("이지창",user.getName());
+        assertTrue(passwordEncoder.matches("1234", user.getPassword()));
+        assertEquals("이지창",user.getName());
 
     }
 
@@ -87,30 +84,32 @@ class UserServiceTest {
         User findUser = userRepository.findById(user.getId())
                 .orElseThrow(UserNotFound :: new);
 
-        Assertions.assertEquals("삼지창",findUser.getName());
-        Assertions.assertEquals("jichang@naver.com",findUser.getEmail());
-        Assertions.assertTrue(passwordEncoder.matches("1234", findUser.getPassword()));
+        assertEquals("삼지창",findUser.getName());
+        assertEquals("jichang@naver.com",findUser.getEmail());
+        assertTrue(passwordEncoder.matches("1234", findUser.getPassword()));
     }
 
     @Test
-    @DisplayName("회원 전체 조회")
-    void userList(){
+    @DisplayName("회원 단건 조회 (마이페이지)")
+    void findUser(){
 
         //given
-        List<User> users = IntStream.range(0,10)
-                .mapToObj(i -> User.builder()
-                        .name("이지창" + i)
-                        .email("jichang@email" + i)
-                        .password("123" +i)
-                        .build())
-                .collect(Collectors.toList());
-        userRepository.saveAll(users);
+        User user = User.builder()
+                .name("이지창")
+                .email("jichang@naver.com")
+                .password("1234")
+                .build();
+
+        userRepository.save(user);
 
         //when
-        userService.userList();
+        userService.findUser(user.getId());
 
         //then
-        Assertions.assertEquals(10,userRepository.count());
+        assertEquals(1,userRepository.count());
+        assertEquals("이지창",user.getName());
+        assertEquals("jichang@naver.com",user.getEmail());
+
     }
 
 
@@ -131,6 +130,6 @@ class UserServiceTest {
         userService.userDelete(user.getId());
 
         //then
-        Assertions.assertEquals(0,userRepository.count());
+        assertEquals(0,userRepository.count());
     }
 }
