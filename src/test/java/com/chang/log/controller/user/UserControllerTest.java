@@ -42,7 +42,10 @@ class UserControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-
+    @AfterEach
+    void clean(){
+        userRepository.deleteAll();
+    }
     
     @Test
     @DisplayName("회원가입")

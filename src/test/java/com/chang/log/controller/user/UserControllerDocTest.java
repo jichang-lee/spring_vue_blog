@@ -118,6 +118,7 @@ class UserControllerDocTest {
 
     }
 
+
     @Test
     @DisplayName("회원 단건 조회 (마이페이지)")
     void findUser() throws Exception{

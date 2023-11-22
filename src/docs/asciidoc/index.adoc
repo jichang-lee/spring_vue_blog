@@ -21,3 +21,48 @@ include::{snippets}/user/user-signup/http-response.adoc[]
 === CURL
 
 include::{snippets}/user/user-signup/curl-request.adoc[]
+
+
+== 마이페이지
+
+include::{snippets}/user/user-myPage/http-request.adoc[]
+include::{snippets}/user/user-myPage/path-parameters.adoc[]
+
+=== 응답
+
+include::{snippets}/user/user-myPage/http-response.adoc[]
+include::{snippets}/user/user-myPage/response-fields.adoc[]
+
+=== CURL
+
+include::{snippets}/user/user-myPage/curl-request.adoc[]
+
+
+== 회원수정
+
+=== 요청
+include::{snippets}/user/user-edit/http-request.adoc[]
+include::{snippets}/user/user-edit/path-parameters.adoc[]
+
+=== 응답
+include::{snippets}/user/user-edit/http-response.adoc[]
+
+=== CURL
+include::{snippets}/user/user-edit/curl-request.adoc[]
+
+
+== 회원탈퇴
+
+=== 요청
+include::{snippets}/user/user-delete/http-request.adoc[]
+include::{snippets}/user/user-delete/path-parameters.adoc[]
+
+=== 응답
+include::{snippets}/user/user-delete/http-response.adoc[]
+
+=== CURL
+include::{snippets}/user/user-delete/curl-request.adoc[]
+
+
+
+

@@ -1,6 +1,7 @@
 package com.chang.log.service;
 
 import com.chang.log.domain.User;
+import com.chang.log.exception.AlreadyExistsEmail;
 import com.chang.log.exception.UserNotFound;
 import com.chang.log.repository.UserRepository;
 import com.chang.log.request.user.SignUp;
@@ -49,7 +50,8 @@ class UserServiceTest {
         //when
         userService.signUp(signUp);
 
-        User user = userRepository.findAll().iterator().next();
+        User user = userRepository.findByEmail("jichang@naver.com")
+                .orElseThrow(AlreadyExistsEmail::new);
 
         //then
         assertEquals(1,userRepository.count());

@@ -63,6 +63,7 @@ public class UserService {
         userRepository.delete(findUser);
     }
 
+
    public UserResponse findUser(Long userId){
        User user = userRepository.findById(userId)
                .orElseThrow(UserNotFound::new);
