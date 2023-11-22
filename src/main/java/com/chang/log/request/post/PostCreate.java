@@ -1,38 +1,28 @@
-package com.chang.log.domain;
+package com.chang.log.request.post;
 
+import com.chang.log.domain.Comment;
+import com.chang.log.domain.User;
 import jakarta.persistence.*;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.Data;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-@Entity
-@NoArgsConstructor
-@Getter
-public class Post {
-
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@Data
+public class PostCreate {
 
     private String title;
     private String content;
     private String writer;
     private int views;
     private LocalDate createAt;
-
-    @ManyToOne
-    @JoinColumn
     private User user;
 
-    @OneToMany(cascade = CascadeType.ALL,mappedBy = "post")
-    private List<Comment> comments = new ArrayList<>();
 
     @Builder
-    public Post(String title, String content, String writer,User user) {
+    public PostCreate(String title, String content, String writer,User user) {
         this.title = title;
         this.content = content;
         this.writer = writer;
