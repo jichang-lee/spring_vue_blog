@@ -64,8 +64,8 @@ class PostControllerTest {
                 .build();
 
         String json = objectMapper.writeValueAsString(postCreate);
-        //expected
 
+        //expected
         mockMvc.perform(MockMvcRequestBuilders.post("/post/write")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))

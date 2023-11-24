@@ -16,17 +16,21 @@ public class PostCreate {
     private String title;
     private String content;
     private String writer;
-    private int views;
     private LocalDate createAt;
     private User user;
 
+//    @Builder
+//    public PostCreate(String title, String content, String writer) {
+//        this.title = title;
+//        this.content = content;
+//        this.writer = writer;
+//    }
 
     @Builder
     public PostCreate(String title, String content, String writer,User user) {
         this.title = title;
         this.content = content;
         this.writer = writer;
-        this.views = 0;
         this.createAt = LocalDate.now();
         this.user = user;
     }
