@@ -1,4 +1,4 @@
-package com.chang.log.request.user;
+package com.chang.log.response;
 
 import com.chang.log.domain.User;
 import lombok.Builder;

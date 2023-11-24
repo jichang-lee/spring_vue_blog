@@ -6,16 +6,13 @@ import com.chang.log.exception.UserNotFound;
 import com.chang.log.repository.UserRepository;
 import com.chang.log.request.user.SignUp;
 import com.chang.log.request.user.UserEditor;
-import com.chang.log.request.user.UserResponse;
+import com.chang.log.response.UserResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

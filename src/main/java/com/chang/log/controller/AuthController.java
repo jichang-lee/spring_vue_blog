@@ -2,14 +2,17 @@ package com.chang.log.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class MainController {
+@RequestMapping(value = "/auth")
+public class AuthController {
 
-    @GetMapping("/")
-    public String main(){
-        return "메인 페이지";
+
+    @GetMapping("/login")
+    public String login(){
+        return "로그인 페이지";
     }
 }

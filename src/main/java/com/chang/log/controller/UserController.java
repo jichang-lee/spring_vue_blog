@@ -2,12 +2,10 @@ package com.chang.log.controller;
 
 import com.chang.log.request.user.SignUp;
 import com.chang.log.request.user.UserEditor;
-import com.chang.log.request.user.UserResponse;
+import com.chang.log.response.UserResponse;
 import com.chang.log.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
