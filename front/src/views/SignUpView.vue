@@ -1,57 +1,69 @@
 <template>
-    <div>
-        <el-input 
-        v-model="name"
-        placeholder="이름을 입력해주세요"/>
+<div class="main">
+  <div class="mx-auto max-w-lg space-y-6 container">
+    <div class="space-y-2 text-center">
+      <h1 class="text-3xl font-bold">Admin User Management</h1>
+      <p class="text-zinc-500 dark:text-zinc-400">Enter user details to create a new user</p>
     </div>
-    <div>
-        <el-input 
-        v-model="email"
-        placeholder="이메일을 입력해주세요"/>
+    <div class="space-y-4">
+      <el-form :model="form" label-position="top">
+        <el-form-item label="Name">
+          <el-input v-model="name"></el-input>
+        </el-form-item>
+        <el-form-item label="Email">
+          <el-input v-model="email" type="email"></el-input>
+        </el-form-item>
+        <el-form-item label="Password">
+          <el-input v-model="password" type="password"></el-input>
+        </el-form-item>
+        <!-- 
+          <el-form-item label="Role">
+            <el-select v-model="form.role" placeholder="Select a role">
+              <el-option label="Role 1" value="role1"></el-option>
+              <el-option label="Role 2" value="role2"></el-option>
+            </el-select>
+          </el-form-item>
+        -->
+        <el-form-item>
+          <el-button type="primary" @click="submitForm">Create User</el-button>
+        </el-form-item>
+      </el-form>
     </div>
-    <div>
-        <el-input 
-        v-model="password"
-        placeholder="비밀번호을 입력해주세요"/>
-    </div>
-    
-    <div class="mt-2">
-        <div class="d-flex justify-content-end">
-        <el-button 
-        @click="write"
-        type="primary"> 회원가입</el-button>
-        </div>
-    </div>
-    
-
+  </div>
+  </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from "vue";
+<script setup>
+import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from "vue-router";
 
-
-const name = ref("")
-const email = ref("")
-const password = ref("")
 const router = useRouter()
 
+const name = ref()
+const email = ref()
+const password = ref()
+const profile = ref()
 
-const write = ()=>{
+
+const submitForm = () => {
     axios.post("/api/user/signup",{
-     name: name.value,
-     email : email.value,
-     password : password.value   
+        name : name.value,
+        email : email.value,
+        password : password.value
+    }).then(()=>{
+        router.replace({name:"home"})
     })
-    // .then(()=>{
-    //     router.replace({name:"home"}) //push 사용시 뒤로가기 할 때 작성form 다시나옴
-    // })
-
-}
-
+};
 </script>
 
 <style>
-
+.main{
+    
+}
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  
+}
 </style>
