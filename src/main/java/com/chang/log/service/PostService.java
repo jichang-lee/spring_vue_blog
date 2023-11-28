@@ -2,6 +2,7 @@ package com.chang.log.service;
 
 import com.chang.log.domain.Post;
 import com.chang.log.domain.User;
+import com.chang.log.exception.PostNotFound;
 import com.chang.log.exception.UserNotFound;
 import com.chang.log.repository.PostRepository;
 import com.chang.log.repository.UserRepository;
@@ -30,6 +31,15 @@ public class PostService {
 
         postRepository.save(post);
 
+    }
+
+
+
+    public void postDelete(Long postId){
+        Post post = postRepository.findById(postId)
+                .orElseThrow(PostNotFound::new);
+
+        postRepository.delete(post);
     }
 
 }

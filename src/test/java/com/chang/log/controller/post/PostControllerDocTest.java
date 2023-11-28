@@ -69,8 +69,9 @@ public class PostControllerDocTest {
                                 PayloadDocumentation.fieldWithPath("writer").description("작성자"),
                                 PayloadDocumentation.fieldWithPath("user").description("회원정보"),
                                 PayloadDocumentation.fieldWithPath("createAt").description("게시글 작성일")
-                        )
-                        ));
+                        )));
 
     }
+
+
 }

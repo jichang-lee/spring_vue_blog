@@ -1,5 +1,18 @@
 <template>
+
 <div class="main">
+    <!-- <div class="profile">
+      <el-upload
+        class="avatar-uploader"
+        action="#"
+        :show-file-list="false"
+        :before-upload="beforeUpload"
+        :on-success="handleSuccess"
+      >
+        <el-avatar :src="profile" :size="120" fit="cover"></el-avatar>
+      </el-upload>
+    </div> -->
+    </div>
   <div class="mx-auto max-w-lg space-y-6 container">
     <div class="space-y-2 text-center">
       <h1 class="text-3xl font-bold">Admin User Management</h1>
@@ -30,7 +43,7 @@
       </el-form>
     </div>
   </div>
-  </div>
+  
 </template>
 
 <script setup>
@@ -58,12 +71,19 @@ const submitForm = () => {
 </script>
 
 <style>
-.main{
-    
-}
+/* .main{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+} */
 .container {
   max-width: 600px;
   margin: 0 auto;
-  
+  /* height: 100vh;
+  padding-top: 100px; */
+}
+.avatar-uploader {
+  display: inline-block;
+  text-align: center;
 }
 </style>

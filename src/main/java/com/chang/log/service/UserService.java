@@ -41,6 +41,30 @@ public class UserService {
         userRepository.save(user);
 
     }
+    public void signUpToImage(SignUp signUp) {
+
+        //1. byEmail -> 중복 이메일 검증
+        Optional<User> byEmail = userRepository.findByEmail(signUp.getEmail());
+        if(byEmail.isPresent()){
+            throw new AlreadyExistsEmail();
+        }
+
+        //2. passwordEncoder
+        String encrypt = passwordEncoder.encode(signUp.getPassword());
+
+        //프로필 지정을 안했을 때
+        if(signUp.getProfile() == null) {
+        User user = User.builder()
+                .email(signUp.getEmail())
+                .password(encrypt)
+                .name(signUp.getName())
+                .build();
+
+        userRepository.save(user);
+        }
+
+
+    }
 
     @Transactional
     public void userEdit(Long userId , UserEditor userEditor){
