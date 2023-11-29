@@ -1,17 +1,7 @@
 <template>
 
 <div class="main">
-    <!-- <div class="profile">
-      <el-upload
-        class="avatar-uploader"
-        action="#"
-        :show-file-list="false"
-        :before-upload="beforeUpload"
-        :on-success="handleSuccess"
-      >
-        <el-avatar :src="profile" :size="120" fit="cover"></el-avatar>
-      </el-upload>
-    </div> -->
+ 
     </div>
   <div class="mx-auto max-w-lg space-y-6 container">
     <div class="space-y-2 text-center">
@@ -51,12 +41,36 @@ import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from "vue-router";
 
+
 const router = useRouter()
 
 const name = ref()
 const email = ref()
 const password = ref()
-const profile = ref()
+const profile = ref();
+
+const beforeAvatarUpload = (file) => {
+    const isJPG = file.type === 'image/jpeg';
+    const isPNG = file.type === 'image/png';
+    const isLt2M = file.size / 1024 / 1024 < 2;
+
+    if (!isJPG && !isPNG) {
+        this.$message.error('Image must be JPG or PNG format!');
+    }
+    if (!isLt2M) {
+        this.$message.error('Image size must be less than 2MB!');
+    }
+
+    return (isJPG || isPNG) && isLt2M;
+};
+
+const handleUploadSuccess = (response, file) => {
+    if (response.code === 200) {
+        profile.value = response.data.url; // Assuming the server returns the image URL
+    } else {
+        this.$message.error('Failed to upload profile image');
+    }
+};
 
 
 const submitForm = () => {
@@ -82,8 +96,20 @@ const submitForm = () => {
   /* height: 100vh;
   padding-top: 100px; */
 }
-.avatar-uploader {
-  display: inline-block;
-  text-align: center;
+.avatar {
+    width: 100px;
+    height: 100px;
+    display: block;
+}
+.avatar-uploader-icon {
+    font-size: 28px;
+    color: #8c939d;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+    border: 1px dashed #d9d9d9;
+    border-radius: 6px;
+    cursor: pointer;
 }
 </style>

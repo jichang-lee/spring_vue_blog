@@ -24,21 +24,24 @@ public class User {
 
     private String password;
 
-    private String profile;
-
     private LocalDate createAt;
 
+    @OneToOne
+    @JoinColumn
+    private Image image;
 
     @OneToMany(cascade = CascadeType.ALL , mappedBy = "user")
     private List<Post> posts = new ArrayList<>();
 
     @Builder
-    public User( String name, String email, String password) {
+    public User( String name, String email, String password, Image image) {
         this.name = name;
         this.email = email;
         this.password = password;
         this.createAt = LocalDate.now();
+        this.image = image;
     }
+
 
     public void edit(String name, String email, String password) {
         this.name = name;

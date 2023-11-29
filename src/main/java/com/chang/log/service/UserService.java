@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
@@ -20,6 +21,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ImageService imageService;
 
     public void signUp(SignUp signUp) {
 
@@ -41,30 +43,42 @@ public class UserService {
         userRepository.save(user);
 
     }
-    public void signUpToImage(SignUp signUp) {
 
-        //1. byEmail -> 중복 이메일 검증
-        Optional<User> byEmail = userRepository.findByEmail(signUp.getEmail());
-        if(byEmail.isPresent()){
-            throw new AlreadyExistsEmail();
-        }
-
-        //2. passwordEncoder
-        String encrypt = passwordEncoder.encode(signUp.getPassword());
-
-        //프로필 지정을 안했을 때
-        if(signUp.getProfile() == null) {
-        User user = User.builder()
-                .email(signUp.getEmail())
-                .password(encrypt)
-                .name(signUp.getName())
-                .build();
-
-        userRepository.save(user);
-        }
-
-
-    }
+    //할지 말지 마지막에 생각
+//    public void signUpToImage(SignUp signUp) throws Exception {
+//
+//        //1. byEmail -> 중복 이메일 검증
+//        Optional<User> byEmail = userRepository.findByEmail(signUp.getEmail());
+//        if(byEmail.isPresent()){
+//            throw new AlreadyExistsEmail();
+//        }
+//
+//        //2. passwordEncoder
+//        String encrypt = passwordEncoder.encode(signUp.getPassword());
+//
+//        //프로필 이미지 지정을 안했을 때
+//        if(signUp.getImage() == null) {
+//        User user = User.builder()
+//                .email(signUp.getEmail())
+//                .password(encrypt)
+//                .name(signUp.getName())
+//                .build();
+//
+//        userRepository.save(user);
+//        }else{
+//            MultipartFile file = signUp.getFile();
+//            User user = User.builder()
+//                    .email(signUp.getEmail())
+//                    .password(encrypt)
+//                    .name(signUp.getName())
+//                    .image(signUp.getImage())
+//                    .build();
+//            userRepository.save(user);
+//
+//            imageService.uploadImage(file,user);
+//        }
+//
+//    }
 
     @Transactional
     public void userEdit(Long userId , UserEditor userEditor){

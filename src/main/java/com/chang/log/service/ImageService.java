@@ -21,7 +21,7 @@ public class ImageService {
     @Value("${spring.servlet.multipart.location}")
     private String uploadPath;
 
-    public String uploadImage(MultipartFile file, User user) throws Exception{
+    public Image uploadImage(MultipartFile file, User user) throws Exception{
         if(file.isEmpty()){
             return null;
         }
@@ -40,7 +40,7 @@ public class ImageService {
 
         imageRepository.save(upload);
 
-        return savePath;
+        return upload;
 
     }
 }
