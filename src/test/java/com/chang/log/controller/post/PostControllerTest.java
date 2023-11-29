@@ -2,7 +2,7 @@ package com.chang.log.controller.post;
 
 import com.chang.log.config.MasterMockUser;
 import com.chang.log.domain.User;
-import com.chang.log.repository.PostRepository;
+import com.chang.log.repository.post.PostRepository;
 import com.chang.log.repository.UserRepository;
 import com.chang.log.request.post.PostCreate;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,10 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 

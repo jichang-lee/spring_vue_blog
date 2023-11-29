@@ -2,10 +2,9 @@ package com.chang.log.controller.post;
 
 import com.chang.log.config.MasterMockUser;
 import com.chang.log.domain.User;
-import com.chang.log.repository.PostRepository;
+import com.chang.log.repository.post.PostRepository;
 import com.chang.log.repository.UserRepository;
 import com.chang.log.request.post.PostCreate;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

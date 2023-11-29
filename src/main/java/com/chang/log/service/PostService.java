@@ -4,7 +4,7 @@ import com.chang.log.domain.Post;
 import com.chang.log.domain.User;
 import com.chang.log.exception.PostNotFound;
 import com.chang.log.exception.UserNotFound;
-import com.chang.log.repository.PostRepository;
+import com.chang.log.repository.post.PostRepository;
 import com.chang.log.repository.UserRepository;
 import com.chang.log.request.post.PostCreate;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +32,8 @@ public class PostService {
         postRepository.save(post);
 
     }
+
+
 
 
 

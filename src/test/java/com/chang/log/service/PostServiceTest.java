@@ -2,16 +2,14 @@ package com.chang.log.service;
 
 
 import com.chang.log.domain.User;
-import com.chang.log.repository.PostRepository;
+import com.chang.log.repository.post.PostRepository;
 import com.chang.log.repository.UserRepository;
 import com.chang.log.request.post.PostCreate;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import static org.junit.jupiter.api.Assertions.*;
 

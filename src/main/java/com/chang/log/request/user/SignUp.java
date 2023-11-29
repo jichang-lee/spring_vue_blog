@@ -11,15 +11,15 @@ public class SignUp {
     private String name;
     private String email;
     private String password;
-    private Image image;
+//    private Image image;
 
 
     @Builder
-    public SignUp(String name, String email, String password,Image image ) {
+    public SignUp(String name, String email, String password) {
         this.name = name;
         this.email = email;
         this.password = password;
-        this.image = image;
+//        this.image = image;
     }
 
 
