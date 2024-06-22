@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import SignUpView from '../views/SignUpView.vue'
-import ReadView from '../views/ReadView.vue'
-import EditView from '../views/EditView.vue'
+import HomeView from '@/views/HomeView.vue'
+import SignUpView from '@/views/SignUpView.vue'
+import WriteView from "@/views/WriteView.vue";
+import ReadView from '@/views/ReadView.vue'
+import EditView from '@/views/EditView.vue'
 
 import { tr } from 'element-plus/es/locales.mjs'
 const router = createRouter({
@@ -17,6 +18,11 @@ const router = createRouter({
       path: "/signup",
       name: "signup",
       component : SignUpView
+    },
+    {
+      path: "/write",
+      name: "write",
+      component : WriteView
     },
     {
       path : "/read/:postId",

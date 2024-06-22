@@ -1,0 +1,52 @@
+<template>
+  <div>
+    <el-input
+        v-model="title"
+        placeholder="제목을 입력해주세요"/>
+  </div>
+
+  <div class="mt-2">
+    <el-input
+        v-model="content"
+        type="textarea"
+        rows="15"/>
+  </div>
+
+  <div class="mt-2">
+    <div class="d-flex justify-content-end">
+      <el-button
+          @click="write"
+          type="primary"> 글 작성완료</el-button>
+    </div>
+  </div>
+
+
+</template>
+
+<script setup lang="ts">
+import { ref } from "vue";
+import axios from 'axios';
+import { useRouter } from "vue-router";
+
+
+const title = ref("")
+const content = ref("")
+const router = useRouter()
+
+
+const write = ()=>{
+  axios.post("/api/post/write",{
+    title: title.value,
+    content : content.value
+  })
+      .then(()=>{
+        router.replace({name:"home"}) //push 사용시 뒤로가기 할 때 작성form 다시나옴
+      })
+
+}
+
+</script>
+
+<style>
+
+</style>

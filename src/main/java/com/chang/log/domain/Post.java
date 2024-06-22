@@ -22,6 +22,7 @@ public class Post {
     private String content;
     private String writer;
     private int views;
+
     private LocalDate createAt;
 
     @ManyToOne
@@ -30,6 +31,9 @@ public class Post {
 
     @OneToMany(cascade = CascadeType.ALL,mappedBy = "post")
     private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "post")
+    private List<PostPhotoPath> postPhotoPaths = new ArrayList<>();
 
     @Builder
     public Post(String title, String content, String writer,User user) {

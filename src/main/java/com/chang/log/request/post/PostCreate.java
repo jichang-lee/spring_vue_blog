@@ -18,6 +18,10 @@ public class PostCreate {
     private String writer;
     private LocalDate createAt;
     private User user;
+    private String filePath;
+    private String fileName;
+    private String newFileName;
+    private String fileUrl;
 
 //    @Builder
 //    public PostCreate(String title, String content, String writer) {
@@ -27,11 +31,13 @@ public class PostCreate {
 //    }
 
     @Builder
-    public PostCreate(String title, String content, String writer,User user) {
+    public PostCreate(String title, String content, String writer,User user, String filePath, String fileUrl) {
         this.title = title;
         this.content = content;
         this.writer = writer;
         this.createAt = LocalDate.now();
         this.user = user;
+        this.filePath = filePath;
+        this.fileUrl = fileUrl;
     }
 }
