@@ -6,6 +6,7 @@ import com.chang.log.exception.PostNotFound;
 import com.chang.log.exception.UserNotFound;
 import com.chang.log.repository.post.PostRepository;
 import com.chang.log.repository.UserRepository;
+import com.chang.log.repository.post.PostRepositoryCustom;
 import com.chang.log.request.post.PostCreate;
 import com.chang.log.response.PostResponse;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final PostRepositoryCustom postRepositoryCustom;
 
     public void postWrite(PostCreate postCreate, Long userId){
 
@@ -55,16 +57,19 @@ public class PostService {
 //            return posts;
 //        }).collect(Collectors.toList());
 //    }
-    public List<PostResponse> postList(int page , int size) {
-        Page<Post> posts = postRepository.findAll(PageRequest.of(page,size));
-
-        return posts.stream().map(post -> {
-            PostResponse postResponse = new PostResponse();
-            postResponse.setTitle(post.getTitle());
-            postResponse.setContent(post.getContent());
-            postResponse.setWriter(post.getWriter());
-            return postResponse;
-        }).collect(Collectors.toList());
+//    public List<PostResponse> postList(int page , int size) {
+//        Page<Post> posts = postRepository.findAll(PageRequest.of(page,size));
+//
+//        return posts.stream().map(post -> {
+//            PostResponse postResponse = new PostResponse();
+//            postResponse.setTitle(post.getTitle());
+//            postResponse.setContent(post.getContent());
+//            postResponse.setWriter(post.getWriter());
+//            return postResponse;
+//        }).collect(Collectors.toList());
+//    }
+    public Page<Post> getPosts(int page , int size , String title, String content, String writer){
+       return postRepositoryCustom.getList(page,size,title,content,writer);
     }
 
 
