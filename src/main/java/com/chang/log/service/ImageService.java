@@ -18,7 +18,7 @@ public class ImageService {
 
     private final ImageRepository imageRepository;
 
-    @Value("${spring.servlet.multipart.location}")
+    @Value("${file.baseDir}")
     private String uploadPath;
 
     public Image uploadImage(MultipartFile file, User user) throws Exception{

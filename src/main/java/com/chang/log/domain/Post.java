@@ -25,7 +25,7 @@ public class Post {
 
     private LocalDate createAt;
 
-    @ManyToOne
+    @ManyToOne(optional = true)
     @JoinColumn
     private User user;
 
