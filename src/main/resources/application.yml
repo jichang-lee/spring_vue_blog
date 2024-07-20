@@ -34,3 +34,7 @@ spring:
 
 file:
   baseDir: /Users/ijichang/Desktop/upload
+
+jwt:
+  expiration_time: 86400000 #1일
+  secret: eW91cl9zaWduaW5nX2tleV9oZXJl

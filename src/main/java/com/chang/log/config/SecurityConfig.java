@@ -4,6 +4,7 @@ import com.chang.log.domain.User;
 import com.chang.log.exception.AlreadyExistsEmail;
 import com.chang.log.exception.UserNotFound;
 import com.chang.log.repository.UserRepository;
+import org.modelmapper.ModelMapper;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -55,24 +56,30 @@ public class SecurityConfig {
                .build();
     }
 
-
     @Bean
-    public UserDetailsService userDetailsService(UserRepository userRepository){
-        return username -> {
-           User user = userRepository.findByEmail(username)
-                    .orElseThrow(UserNotFound::new);
-           return new UserPrincipal(user);
-        };
+    public ModelMapper modelMapper() {
+        return new ModelMapper();
     }
 
+
+//    @Bean
+//    public UserDetailsService userDetailsService(UserRepository userRepository){
+//        return username -> {
+//           User user = userRepository.findByEmail(username)
+//                    .orElseThrow(UserNotFound::new);
+//           return new UserPrincipal(user);
+//        };
+//    }
+//
     @Bean
     public PasswordEncoder passwordEncoder (){
-        return new SCryptPasswordEncoder(
-                16,
-                8,
-                1,
-                32,
-                64
-        );
+//        return new SCryptPasswordEncoder(
+//                16,
+//                8,
+//                1,
+//                32,
+//                64
+//        );
+        return new BCryptPasswordEncoder();
     }
 }
