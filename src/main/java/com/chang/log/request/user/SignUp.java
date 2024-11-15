@@ -1,11 +1,16 @@
 package com.chang.log.request.user;
 
 import com.chang.log.domain.Image;
+
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
+@NoArgsConstructor
 public class SignUp {
 
     private String name;

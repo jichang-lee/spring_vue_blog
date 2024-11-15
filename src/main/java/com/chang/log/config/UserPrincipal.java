@@ -15,7 +15,7 @@ public class UserPrincipal extends User {
 
     public UserPrincipal(com.chang.log.domain.User user) {
         super(user.getEmail(), user.getPassword(), List.of(new SimpleGrantedAuthority("ROLE_ADMIN")));
-        this.id = user.getId();
+        this.id = user.getUserId();
     }
 
 

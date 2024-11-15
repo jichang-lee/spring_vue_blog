@@ -23,7 +23,7 @@ public class PostController {
 
     @PostMapping("/write")
     public void postWrite(@RequestParam String postData,
-                          @RequestParam List<MultipartFile> files) throws IOException {
+                          @RequestParam(required = false) List<MultipartFile> files) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
 
         PostCreate postCreate = objectMapper.readValue(postData, PostCreate.class);

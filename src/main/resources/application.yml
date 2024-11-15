@@ -36,5 +36,6 @@ file:
   baseDir: /Users/ijichang/Desktop/upload
 
 jwt:
+  header : Authorization
   expiration_time: 86400000 #1일
   secret: 86b396ea240545aee0aa35daa40f03b9b2d51651382d4a3cdd02b0d304a93949
