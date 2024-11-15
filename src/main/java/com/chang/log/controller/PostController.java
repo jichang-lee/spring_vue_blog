@@ -1,6 +1,5 @@
 package com.chang.log.controller;
 
-import com.chang.log.config.UserPrincipal;
 import com.chang.log.domain.Post;
 import com.chang.log.request.post.PostCreate;
 import com.chang.log.response.PostResponse;

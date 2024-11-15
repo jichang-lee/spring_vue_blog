@@ -13,7 +13,7 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
     show-sql: true
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
@@ -37,4 +37,4 @@ file:
 
 jwt:
   expiration_time: 86400000 #1일
-  secret: eW91cl9zaWduaW5nX2tleV9oZXJl
+  secret: 86b396ea240545aee0aa35daa40f03b9b2d51651382d4a3cdd02b0d304a93949
