@@ -99,7 +99,13 @@ jar {
 	enabled = false
 }
 
-
+sourceSets {
+	main {
+		java {
+			srcDir 'build/generated/source/apt/main'
+		}
+	}
+}
 
 
 
