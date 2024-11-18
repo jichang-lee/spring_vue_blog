@@ -60,7 +60,7 @@ public class JwtUtil {
 		token 에서 user PK get
 	 */
 	public Long getUserId(String token) {
-		return parseClaims(token).get("memberId", Long.class);
+		return parseClaims(token).get("userId", Long.class);
 	}
 
 	/*

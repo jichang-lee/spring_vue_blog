@@ -1,5 +1,6 @@
 package com.chang.log.service;
 
+import com.chang.log.config.CustomUserDetails;
 import com.chang.log.domain.User;
 import com.chang.log.exception.AlreadyExistsEmail;
 import com.chang.log.exception.UserNotFound;
@@ -7,8 +8,14 @@ import com.chang.log.repository.UserRepository;
 import com.chang.log.request.user.SignUp;
 import com.chang.log.request.user.UserEditor;
 import com.chang.log.response.UserResponse;
+import com.chang.log.response.UserTokenInfo;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +24,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -43,6 +51,7 @@ public class UserService {
         userRepository.save(user);
 
     }
+
 
     //할지 말지 마지막에 생각
 //    public void signUpToImage(SignUp signUp) throws Exception {

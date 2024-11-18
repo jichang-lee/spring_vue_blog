@@ -10,10 +10,16 @@ import com.chang.log.repository.post.PostRepository;
 import com.chang.log.repository.UserRepository;
 import com.chang.log.repository.post.PostRepositoryCustom;
 import com.chang.log.request.post.PostCreate;
+import com.chang.log.request.post.PostSearch;
 import com.chang.log.response.FileResponse;
+import com.chang.log.response.PagingResponse;
 import com.chang.log.response.PostResponse;
 import com.chang.log.util.FileUtil;
+import com.chang.log.util.JwtUtil;
+
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,6 +37,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PostService {
 
     private final PostRepository postRepository;
@@ -38,6 +45,7 @@ public class PostService {
     private final PostRepositoryCustom postRepositoryCustom;
     private final PostPhotoPathRepository postPhotoPathRepository;
     private final FileUtil FileUtil;
+    private final JwtUtil jwtUtil;
 
 
     public void postWrite(PostCreate postCreate, Long userId,List<MultipartFile> files) throws IOException {
@@ -69,12 +77,15 @@ public class PostService {
     }
 
 
-    public Page<Post> getPosts(int page, int size, String title, String content, String writer) {
-        return postRepositoryCustom.getList(page, size, title, content, writer);
+    public PagingResponse<PostResponse> getPosts(PostSearch postSearch) {
+        // log.info(jwtUtil.getUserId());
+        Page<Post> postPage = postRepositoryCustom.getList(postSearch);
+        return new PagingResponse<>(postPage, PostResponse.class);
     }
 
 
     public void postDelete(Long postId) {
+
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFound::new);
 
