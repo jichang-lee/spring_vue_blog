@@ -4,8 +4,8 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/study_db?serverTimezone=UTC&characterEncoding=UTF-8
-    username: root
+    url: jdbc:mysql://localhost:3306/study?serverTimezone=UTC&characterEncoding=UTF-8
+    username: study
     password: root
 
   jpa:
@@ -23,10 +23,12 @@ spring:
       pageable:
         one-indexed-parameters: true
         default-page-size: 5
+    redis:
+      host: localhost
+      port: 6379
   session:
     jdbc:
       initialize-schema: always
-
   servlet:
     multipart:
       max-file-size: 500MB
@@ -36,5 +38,9 @@ file:
   baseDir: /Users/ijichang/Desktop/upload
 
 jwt:
-  expiration_time: 86400000 #1일
-  secret: eW91cl9zaWduaW5nX2tleV9oZXJl
+  header : Authorization
+  expiration_time: 10 #1일
+#  expiration_time: 86400000 #1일
+  refresh_expiration_time: 20 #1일
+  secret: 86b396ea240545aee0aa35daa40f03b9b2d51651382d4a3cdd02b0d304a93949
+

@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface PostRepositoryCustom {
 
-    Page<Post> getList(int page , int size , String title, String content, String writer);
+    Page<Post> getList(PostSearch postSearch);
 }

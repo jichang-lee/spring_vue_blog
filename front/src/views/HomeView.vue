@@ -32,6 +32,16 @@ const currentPage = ref(0);
 const totalPages = ref(0);
 const pageSize = 5;  // 페이지당 데이터 개수
 
+axios.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, error => {
+  return Promise.reject(error);
+});
+
 // 페이지 이동 처리
 const goToPage = async (page: number) => {
   if (page < 1 || page > totalPages.value) return;
@@ -42,9 +52,9 @@ const goToPage = async (page: number) => {
 // 데이터를 가져오는 비동기 함수
 const fetchData = async () => {
   try {
-    const response = await axios.get(`/api/post/list?page=${currentPage.value}&size=${pageSize}`);
-    console.log('response=',response)
-    itemList.value = response.data;
+    // const response = await axios.get(`/api/post/list`);
+    const response = await axios.get(`/api/post/list?page=1&size=10`);
+    itemList.value = response.data.items;
     totalPages.value = response.headers['x-total-pages'];
   } catch (error) {
     console.error('Error fetching data:', error);

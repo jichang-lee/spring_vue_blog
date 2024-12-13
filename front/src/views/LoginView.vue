@@ -1,12 +1,12 @@
 <template>
   <div class="login-container">
     <h1 class="text-3xl text-center font-bold mb-6">Login</h1>
-    <el-form ref="loginForm" :model="loginForm" label-position="top">
+    <el-form :model="form" label-position="top">
       <el-form-item label="Email">
-        <el-input v-model="loginForm.email" type="email" placeholder="Enter your email"></el-input>
+        <el-input v-model="email" placeholder="Enter your email"></el-input>
       </el-form-item>
       <el-form-item label="Password">
-        <el-input v-model="loginForm.password" type="password" placeholder="Enter your password"></el-input>
+        <el-input v-model="password" type="password" placeholder="Enter your password"></el-input>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="handleLogin">Login</el-button>
@@ -21,21 +21,31 @@ import axios from 'axios';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
-const loginForm = ref({
-  email: '',
-  password: ''
-});
+const email = ref();
+const password = ref();
+// const userId = ref(1);
 
 const handleLogin = () => {
   // 로그인 처리 로직 구현 필요
-  console.log('Logging in with:', loginForm.value);
-  // 예제: 아래 axios 호출은 서버의 로그인 API로 변경해야 합니다.
-  // axios.post('/api/login', loginForm.value).then(response => {
-  //   console.log('Login successful:', response);
-  //   router.push({ name: 'home' });
-  // }).catch(error => {
-  //   console.error('Login failed:', error);
-  // });
+
+  axios.post('/api/auth/login',{
+    // userId : userId.value,
+    email : email.value,
+    password : password.value
+  }).then(response => {
+
+    const token = response.data;
+    const accessToken = token.accessToken;
+    const refreshToken = token.refreshToken;
+
+    localStorage.setItem('token', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+
+    console.log('Login successful:', response);
+    router.push({ name: 'home' });
+  }).catch(error => {
+    console.error('Login failed:', error);
+  });
 };
 </script>
 
