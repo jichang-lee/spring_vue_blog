@@ -35,7 +35,12 @@ const handleLogin = () => {
   }).then(response => {
 
     const token = response.data;
-      localStorage.setItem('token',token)
+    const accessToken = token.accessToken;
+    const refreshToken = token.refreshToken;
+
+    localStorage.setItem('token', accessToken);
+    localStorage.setItem('refreshToken', refreshToken);
+
     console.log('Login successful:', response);
     router.push({ name: 'home' });
   }).catch(error => {

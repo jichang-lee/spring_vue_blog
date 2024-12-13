@@ -14,8 +14,10 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RequiredArgsConstructor
+@Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
 
 	private final CustomUserDetailsService customUserDetailsService;
@@ -26,9 +28,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		FilterChain filterChain) throws ServletException, IOException {
 
 		String authHeader = request.getHeader("Authorization");
+		String refr = request.getHeader("Refresh-Token");
+		log.info("header auth = {}",authHeader);
+		log.info("header reft={}",refr);
 
 		if(authHeader != null && authHeader.startsWith("Bearer ")) {
 			String token = authHeader.substring(7);
+			log.info("token = {}",token);
 			//JWT 유효성 검증
 			if(jwtUtil.validateToken(token)) {
 				Long userId = jwtUtil.getUserId(token);

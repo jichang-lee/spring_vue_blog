@@ -45,7 +45,7 @@ public class SecurityConfig  {
         //CSRF, CORS
         http.csrf((csrf) -> csrf.disable());
         http.cors(Customizer.withDefaults());
-
+        // http.logout().logoutUrl("/auth/logout");
         //세션 관리 상태 없음으로 구성, Spring Security가 세션 생성 or 사용 X
         http.sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(
             SessionCreationPolicy.STATELESS));

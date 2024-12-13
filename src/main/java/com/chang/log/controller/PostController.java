@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -26,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @RestController
@@ -54,12 +56,14 @@ public class PostController {
     public PagingResponse<PostResponse> getList(
             @ModelAttribute PostSearch postSearch
         ) {
-        CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder
-            .getContext()
-            .getAuthentication()
-            .getPrincipal();
-
-        log.info("User ID: {}", userDetails.getUsername());
+        // CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder
+        //     .getContext()
+        //     .getAuthentication()
+        //     .getPrincipal();
+        //
+        // log.info("User ID: {}", userDetails.getUsername());
+        // log.info("User ID: {}", userDetails.getEmail());
+        // log.info("List = {}",userDetails.getAuthorities());
         // principal 값을 로그로 출력
         return postService.getPosts(postSearch);
     }

@@ -25,18 +25,30 @@ public class JwtUtil {
 
 	private final Key key;
 	private final long accessTokenExpTime;
+	private final long refreshTokenExpTime;
 
 	public JwtUtil(@Value("${jwt.secret}") String secretKey,
-		@Value("${jwt.expiration_time}") long accessTokenExpTime
+		@Value("${jwt.expiration_time}") long accessTokenExpTime,
+		@Value("${jwt.refresh_expiration_time}") long refreshTokenExpTime
 	) {
 		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
 		this.key = Keys.hmacShaKeyFor(keyBytes);
 		this.accessTokenExpTime = accessTokenExpTime;
+		this.refreshTokenExpTime = refreshTokenExpTime;
 	}
 
 	public String createAccessToken(UserTokenInfo member) {
 		return createToken(member, accessTokenExpTime);
 	}
+
+	public String createRefreshAccessToken(UserTokenInfo member) {
+		return createToken(member, refreshTokenExpTime);
+	}
+
+	public long getRefreshTokenExpTime() {
+		return refreshTokenExpTime;
+	}
+
 
 	private String createToken(UserTokenInfo member, long accessTokenExpTime) {
 		//토큰에 담을 회원 정보
@@ -68,6 +80,7 @@ public class JwtUtil {
 	 */
 	public boolean validateToken(String token) {
 		try {
+			log.info("key={}",key);
 			Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
 			return true;
 		} catch (io.jsonwebtoken.security.SecurityException | MalformedJwtException e) {

@@ -23,10 +23,12 @@ spring:
       pageable:
         one-indexed-parameters: true
         default-page-size: 5
+    redis:
+      host: localhost
+      port: 6379
   session:
     jdbc:
       initialize-schema: always
-
   servlet:
     multipart:
       max-file-size: 500MB
@@ -37,5 +39,8 @@ file:
 
 jwt:
   header : Authorization
-  expiration_time: 86400000 #1일
+  expiration_time: 10 #1일
+#  expiration_time: 86400000 #1일
+  refresh_expiration_time: 20 #1일
   secret: 86b396ea240545aee0aa35daa40f03b9b2d51651382d4a3cdd02b0d304a93949
+
