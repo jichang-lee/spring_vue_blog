@@ -13,6 +13,7 @@ import com.chang.log.util.JwtUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,7 +55,7 @@ public class PostController {
 
     @GetMapping("/list")
     public PagingResponse<PostResponse> getList(
-            @ModelAttribute PostSearch postSearch
+            @ModelAttribute @Valid PostSearch postSearch
         ) {
         // CustomUserDetails userDetails = (CustomUserDetails) SecurityContextHolder
         //     .getContext()

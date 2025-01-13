@@ -32,6 +32,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -85,11 +86,26 @@ public class PostService {
 
 
     public void postDelete(Long postId) {
-
         Post post = postRepository.findById(postId)
                 .orElseThrow(PostNotFound::new);
-
         postRepository.delete(post);
     }
+
+    public void postAllDelete(List<Long> postIds) {
+        //1번
+        List<Post> posts = postRepository.findAllById(postIds);
+        if(posts.isEmpty()) throw new IllegalArgumentException("삭제할 게시글이 존재하지 않습니다.");
+        postRepository.deleteAll(posts);
+
+        //2번
+        postIds.forEach(e-> {
+            Post post = postRepository.findById(e)
+                .orElseThrow(PostNotFound::new);
+            postRepository.delete(post);
+        });
+
+
+    }
+
 
 }

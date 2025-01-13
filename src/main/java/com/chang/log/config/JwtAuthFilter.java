@@ -1,6 +1,9 @@
 package com.chang.log.config;
 
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.HashMap;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -8,6 +11,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.chang.log.util.JwtUtil;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,6 +27,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 	private final CustomUserDetailsService customUserDetailsService;
 	private final JwtUtil jwtUtil;
+	private final TypeReference<HashMap<String, Object>> tr = new TypeReference<>() {};
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
@@ -29,8 +35,13 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 		String authHeader = request.getHeader("Authorization");
 		String refr = request.getHeader("Refresh-Token");
+		String body = getBody(request);
 		log.info("header auth = {}",authHeader);
 		log.info("header reft={}",refr);
+		log.info("body = {}",body);
+		ObjectMapper objectMapper = new ObjectMapper();
+		HashMap<String, Object> stringObjectHashMap = objectMapper.readValue(body, tr);
+		log.info("stringObjectHashMap = {}",stringObjectHashMap);
 
 		if(authHeader != null && authHeader.startsWith("Bearer ")) {
 			String token = authHeader.substring(7);
@@ -55,5 +66,19 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
 		}
 		filterChain.doFilter(request,response);
+	}
+
+	String getBody(HttpServletRequest request) throws IOException {
+		var stringBuilder = new StringBuilder();
+		try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(request.getInputStream()))) {
+			char[] charBuffer = new char[1024];
+			int bytesRead;
+			while ((bytesRead = bufferedReader.read(charBuffer)) > 0) {
+				stringBuilder.append(charBuffer, 0, bytesRead);
+			}
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return stringBuilder.toString();
 	}
 }
