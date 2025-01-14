@@ -67,6 +67,11 @@ dependencies {
 
 	//redis
 	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+	//zxing (barcode)
+	implementation group: 'com.google.zxing', name: 'core', version: '3.5.3'
+	implementation group: 'com.google.zxing', name: 'javase', version: '3.5.3'
+
 }
 
 tasks.named('test') {

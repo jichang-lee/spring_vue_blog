@@ -3,6 +3,7 @@
     <el-menu mode="horizontal" router>
       <el-menu-item index="/">Home</el-menu-item>
       <el-menu-item v-if="isLoggedIn" index="/write">글 작성</el-menu-item>
+      <el-menu-item v-if="isLoggedIn" index="/barcode">바코드 ㄱㄱ</el-menu-item>
       <el-menu-item v-if="isLoggedIn">{{userName}}</el-menu-item>
       <el-menu-item v-if="isLoggedIn" @click="logout">logout</el-menu-item>
       <el-menu-item v-else @click="goToLogin">Login</el-menu-item>
