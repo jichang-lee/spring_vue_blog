@@ -4,9 +4,13 @@ import java.security.Key;
 import java.time.ZonedDateTime;
 import java.util.Date;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.chang.log.enums.RoleType;
+import com.chang.log.exception.HeaderTokenNotFound;
+import com.chang.log.exception.RefreshTokenNotFound;
 import com.chang.log.response.UserTokenInfo;
 
 import io.jsonwebtoken.Claims;
@@ -17,6 +21,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.UnsupportedJwtException;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 
 @Component
@@ -27,10 +32,15 @@ public class JwtUtil {
 	private final long accessTokenExpTime;
 	private final long refreshTokenExpTime;
 
+	@Autowired
+	private final RedisUtil redisUtil;
+
 	public JwtUtil(@Value("${jwt.secret}") String secretKey,
 		@Value("${jwt.expiration_time}") long accessTokenExpTime,
-		@Value("${jwt.refresh_expiration_time}") long refreshTokenExpTime
+		@Value("${jwt.refresh_expiration_time}") long refreshTokenExpTime,
+		RedisUtil redisUtil
 	) {
+		this.redisUtil = redisUtil;
 		byte[] keyBytes = Decoders.BASE64.decode(secretKey);
 		this.key = Keys.hmacShaKeyFor(keyBytes);
 		this.accessTokenExpTime = accessTokenExpTime;
@@ -42,7 +52,10 @@ public class JwtUtil {
 	}
 
 	public String createRefreshAccessToken(UserTokenInfo member) {
-		return createToken(member, refreshTokenExpTime);
+		String refreshToken = createToken(member, refreshTokenExpTime);
+		redisUtil.save(member.getEmail(),refreshToken,refreshTokenExpTime);
+
+		return refreshToken;
 	}
 
 	public long getRefreshTokenExpTime() {
@@ -73,6 +86,37 @@ public class JwtUtil {
 	 */
 	public Long getUserId(String token) {
 		return parseClaims(token).get("userId", Long.class);
+	}
+
+	public String getUserEmail(String token) {
+		return parseClaims(token).get("email", String.class);
+	}
+
+	public RoleType getUserRole(String token) {
+		return parseClaims(token).get("role", RoleType.class);
+	}
+
+	public String refreshAccessToken(String refreshToken) {
+		Long userId = getUserId(refreshToken);
+		String userEmail = getUserEmail(refreshToken);
+		RoleType userRole = getUserRole(refreshToken);
+
+		String storeRefreshToken = redisUtil.get(userEmail);
+
+		if(storeRefreshToken == null || !storeRefreshToken.equals(refreshToken)) {
+			throw new RefreshTokenNotFound();
+		}
+
+		UserTokenInfo user = new UserTokenInfo(userId, userEmail, userRole);
+		return createAccessToken(user);
+	}
+
+	public String resolveToken(HttpServletRequest req) {
+		String header = req.getHeader("Authorization");
+		if(header != null && header.startsWith("Bearer ")) {
+			return header.substring(7);
+		}
+		throw new HeaderTokenNotFound();
 	}
 
 	/*

@@ -15,9 +15,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.chang.log.exception.RefreshTokenNotFound;
 import com.chang.log.request.user.LoginRequest;
 import com.chang.log.response.UserResponse;
 import com.chang.log.service.AuthService;
+import com.chang.log.util.JwtUtil;
+import com.chang.log.util.RedisUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -32,6 +35,8 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
 
 	private final AuthService authService;
+	private final JwtUtil jwtUtil;
+	private final RedisUtil redisUtil;
 
 
 	@PostMapping("/login")
@@ -50,6 +55,7 @@ public class AuthController {
 	public void logout(HttpServletRequest request, HttpServletResponse response) {
 		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 		if(authentication != null && authentication.isAuthenticated()) {
+			authService.deleteRefreshToken(request);
 			new SecurityContextLogoutHandler().logout(request,response,authentication);
 		}
 	}
@@ -62,11 +68,21 @@ public class AuthController {
 	}
 
 
-	// @PostMapping("/reissue")
-	// public ResponseEntity<Void> logout(@RequestHeader () {
-	// 	String jwt = token.replace("Bearer", "");
-	//
-	// }
+	@PostMapping("/refresh")
+	public ResponseEntity<?> logout(HttpServletRequest request) {
+		String token = jwtUtil.resolveToken(request);
+		if(token == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("token is null");
+		}
+
+		try {
+			String newAccessToken = jwtUtil.refreshAccessToken(token);
+			return ResponseEntity.ok(newAccessToken);
+		}catch (RefreshTokenNotFound e) {
+			return ResponseEntity.status(HttpStatus.FORBIDDEN).body("accessToken reissue fail");
+		}
+
+	}
 
 
 }

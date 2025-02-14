@@ -11,12 +11,15 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.chang.log.domain.User;
+import com.chang.log.exception.UserNotFound;
 import com.chang.log.repository.UserRepository;
 import com.chang.log.request.user.LoginRequest;
 import com.chang.log.response.UserResponse;
 import com.chang.log.response.UserTokenInfo;
 import com.chang.log.util.JwtUtil;
+import com.chang.log.util.RedisUtil;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthService {
 
 	private final JwtUtil jwtUtil;
+	private final RedisUtil redisUtil;
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final ModelMapper modelMapper;
@@ -47,9 +51,9 @@ public class AuthService {
 
 		String refreshAccessToken = jwtUtil.createRefreshAccessToken(memberInfo);
 		String accessToken = jwtUtil.createAccessToken(memberInfo);
-		String refreshTokenRedisKey = getRefreshTokenRedisKey(user.getUserId(), user.getEmail());
 
-		redisService.saveToken(refreshTokenRedisKey,refreshAccessToken, jwtUtil.getRefreshTokenExpTime());
+
+		// redisService.saveToken(refreshTokenRedisKey,refreshAccessToken, jwtUtil.getRefreshTokenExpTime());
 
 		HashMap<String, String> token = new HashMap<>();
 		// 관리자에서 로그인 유저를 제어하기 위해 accessToken put
@@ -58,10 +62,6 @@ public class AuthService {
 		// log.info("token ={}",token.get("accessToken"));
 		// log.info("token ={}",token.get("refreshToekn"));
 		return token;
-	}
-
-	private String getRefreshTokenRedisKey(Long userId, String email) {
-		return "refresh:" + userId + ":" + email;
 	}
 
 	public UserResponse getUserInfo(String accessToken) {
@@ -78,6 +78,16 @@ public class AuthService {
 
 		return new UserResponse(user.getName(),
 			user.getEmail());
+	}
+
+	public void deleteRefreshToken(HttpServletRequest request) {
+		String token = jwtUtil.resolveToken(request);
+		String userEmail = jwtUtil.getUserEmail(token);
+
+		User user = userRepository.findByEmail(userEmail)
+			.orElseThrow(UserNotFound::new);
+
+		redisUtil.delete(user.getEmail());
 	}
 
 

@@ -24,23 +24,21 @@ public class RedisConfig {
 	@Bean
 	public RedisConnectionFactory redisConnectionFactory() {
 		RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
-		// config.setPassword();
 
 		return new LettuceConnectionFactory(config);
 	}
 
 	@Bean
-	public RedisTemplate<String,Object> redisTemplate(RedisConnectionFactory factory) {
+	public RedisTemplate<String,Object> redisTemplate() {
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
-		redisTemplate.setConnectionFactory(factory);
+		redisTemplate.setConnectionFactory(redisConnectionFactory());
+
+		// redisTemplate.setKeySerializer(new StringRedisSerializer());
+		// redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
 
 		// 일반적인 키 벨류의 경우 시리얼라이저
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
-		redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-
-		// 일반적인 키 벨류의 경우 시리얼라이저
-		// redisTemplate.setKeySerializer(new StringRedisSerializer());
-		// redisTemplate.setValueSerializer(new StringRedisSerializer());
+		redisTemplate.setValueSerializer(new StringRedisSerializer());
 
 		// hash 사용할 경우
 		// redisTemplate.setHashKeySerializer(new StringRedisSerializer());

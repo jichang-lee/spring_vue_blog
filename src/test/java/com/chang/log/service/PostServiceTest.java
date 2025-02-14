@@ -42,6 +42,20 @@ class PostServiceTest {
         postRepository.deleteAll();
     }
 
+    @Test
+    void bulkInsert() {
+        User user = userRepository.findById(1L).orElse(null);
+
+        for(int i = 0 ; i < 10; i++) {
+            Post post = Post.builder()
+                .title("post title" + i)
+                .content("post content" + i)
+                .user(user)
+                .build();
+            postRepository.save(post);
+        }
+    }
+
 
 //    @Test
 //    @DisplayName("게시글 작성")

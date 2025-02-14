@@ -34,18 +34,9 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 		FilterChain filterChain) throws ServletException, IOException {
 
 		String authHeader = request.getHeader("Authorization");
-		String refr = request.getHeader("Refresh-Token");
-		// String body = getBody(request);
-		log.info("header auth = {}",authHeader);
-		log.info("header reft={}",refr);
-		// log.info("body = {}",body);
-		ObjectMapper objectMapper = new ObjectMapper();
-		// HashMap<String, Object> stringObjectHashMap = objectMapper.readValue(body, tr);
-		// log.info("stringObjectHashMap = {}",stringObjectHashMap);
 
 		if(authHeader != null && authHeader.startsWith("Bearer ")) {
 			String token = authHeader.substring(7);
-			log.info("token = {}",token);
 			//JWT 유효성 검증
 			if(jwtUtil.validateToken(token)) {
 				Long userId = jwtUtil.getUserId(token);

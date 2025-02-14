@@ -101,7 +101,7 @@ class UserControllerDocTest {
                 .build();
         String json = objectMapper.writeValueAsString(userEditor);
 
-        mockMvc.perform(patch("/user/edit/{userId}",user.getId())
+        mockMvc.perform(patch("/user/edit/{userId}",user.getUserId())
                         .contentType(APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isOk())
@@ -132,7 +132,7 @@ class UserControllerDocTest {
         userRepository.save(user);
 
         //expected
-        mockMvc.perform(get("/user/myPage/{userId}",user.getId())
+        mockMvc.perform(get("/user/myPage/{userId}",user.getUserId())
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("/user/user-myPage",RequestDocumentation.pathParameters(
@@ -158,7 +158,7 @@ class UserControllerDocTest {
         userRepository.save(user);
 
         //expected
-        mockMvc.perform(RestDocumentationRequestBuilders.delete("/user/delete/{userId}",user.getId())
+        mockMvc.perform(RestDocumentationRequestBuilders.delete("/user/delete/{userId}",user.getUserId())
                         .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(document("/user/user-delete",
