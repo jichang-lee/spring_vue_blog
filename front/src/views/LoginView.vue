@@ -19,11 +19,12 @@
 import { ref } from 'vue';
 import axios from 'axios';
 import { useRouter } from 'vue-router';
+import {useCookies} from "vue3-cookies";
 
 const router = useRouter();
 const email = ref();
 const password = ref();
-// const userId = ref(1);
+const {cookies} = useCookies();
 
 const handleLogin = () => {
   // 로그인 처리 로직 구현 필요
@@ -38,8 +39,8 @@ const handleLogin = () => {
     const accessToken = token.accessToken;
     const refreshToken = token.refreshToken;
 
-    localStorage.setItem('token', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    cookies.set('token', accessToken);
+    cookies.set('refreshToken', refreshToken);
 
     console.log('Login successful:', response);
     router.push({ name: 'home' });

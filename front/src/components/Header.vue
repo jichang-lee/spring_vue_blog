@@ -3,7 +3,6 @@
     <el-menu mode="horizontal" router>
       <el-menu-item index="/">Home</el-menu-item>
       <el-menu-item v-if="isLoggedIn" index="/write">글 작성</el-menu-item>
-      <el-menu-item v-if="isLoggedIn" index="/barcode">바코드 ㄱㄱ</el-menu-item>
       <el-menu-item v-if="isLoggedIn">{{userName}}</el-menu-item>
       <el-menu-item v-if="isLoggedIn" @click="logout">logout</el-menu-item>
       <el-menu-item v-else @click="goToLogin">Login</el-menu-item>
@@ -15,16 +14,19 @@
 import axios from "axios";
 import {onMounted, ref} from "vue";
 import {useRouter} from "vue-router";
+import { useCookies} from "vue3-cookies";
+
 
 const userName = ref();
 const router = useRouter();
 const isLoggedIn = ref(false);
 const headerKey = ref(0);
-
+const { cookies } = useCookies();
+const TokenKey = ""
 
 const checkAuth = async () => {
-  const token = localStorage.getItem("token");
-  const refreshToken = localStorage.getItem("refreshToken");
+  const token = cookies.get("token");
+  const refreshToken = cookies.get("refreshToken");
   console.log("token ={}",token)
   if (token) {
     try {
@@ -57,8 +59,8 @@ const goToLogin = () => {
 const logout = async () => {
   try {
     await axios.post("/api/auth/logout");
-    localStorage.removeItem("token");
-    localStorage.removeItem("refreshToken");
+    cookies.remove("token");
+    cookies.remove("refreshToken");
     isLoggedIn.value = false;
     userName.value = null;
     headerKey.value++;

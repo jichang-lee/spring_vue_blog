@@ -59,8 +59,6 @@ public class AuthService {
 		// 관리자에서 로그인 유저를 제어하기 위해 accessToken put
 		token.put("accessToken",accessToken);
 		token.put("refreshToken",refreshAccessToken);
-		// log.info("token ={}",token.get("accessToken"));
-		// log.info("token ={}",token.get("refreshToekn"));
 		return token;
 	}
 
@@ -81,13 +79,16 @@ public class AuthService {
 	}
 
 	public void deleteRefreshToken(HttpServletRequest request) {
-		String token = jwtUtil.resolveToken(request);
-		String userEmail = jwtUtil.getUserEmail(token);
+		if(request.getHeader("Authorization") != null) {
+			String token = jwtUtil.resolveToken(request);
+			String userEmail = jwtUtil.getUserEmail(token);
 
-		User user = userRepository.findByEmail(userEmail)
-			.orElseThrow(UserNotFound::new);
+			User user = userRepository.findByEmail(userEmail)
+				.orElseThrow(UserNotFound::new);
 
-		redisUtil.delete(user.getEmail());
+			redisUtil.delete(user.getEmail());
+		}
+
 	}
 
 

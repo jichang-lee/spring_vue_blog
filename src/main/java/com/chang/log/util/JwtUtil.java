@@ -58,10 +58,6 @@ public class JwtUtil {
 		return refreshToken;
 	}
 
-	public long getRefreshTokenExpTime() {
-		return refreshTokenExpTime;
-	}
-
 
 	private String createToken(UserTokenInfo member, long accessTokenExpTime) {
 		//토큰에 담을 회원 정보
