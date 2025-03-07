@@ -12,17 +12,24 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import lombok.extern.slf4j.Slf4j;
+
 @SpringBootTest
+@Slf4j
 class PostServiceTest {
 
     @Autowired
@@ -31,30 +38,43 @@ class PostServiceTest {
     @Autowired
     private UserRepository userRepository;
 
-    @Autowired
-    private PostRepository postRepository;
+	@Autowired
+	private JdbcTemplate jdbcTemplate;
 
+	@Autowired
+	private PostRepository postRepository;
 
 
     @AfterEach
     void clean(){
         userRepository.deleteAll();
-        postRepository.deleteAll();
+		postRepository.deleteAll();
     }
 
-    @Test
-    void bulkInsert() {
-        User user = userRepository.findById(1L).orElse(null);
+	@Test
+	@DisplayName("bulkInsert")
+	void createUsers() {
+		Instant start = Instant.now();
 
-        for(int i = 0 ; i < 10; i++) {
-            Post post = Post.builder()
-                .title("post title" + i)
-                .content("post content" + i)
-                .user(user)
-                .build();
-            postRepository.save(post);
-        }
-    }
+		String sql = "INSERT INTO user (email, password, name) VALUES (?, ?, ?)";
+
+		int batchSize = 10000; // 1만개 씩 처리
+		int totalSize = 100000; 	//10만개의 데이터
+
+		for (int i = 0; i < totalSize; i += batchSize) {
+			List<Object[]> batchUser = IntStream.rangeClosed(i + 1, Math.min(i + batchSize, totalSize))
+				.mapToObj(t -> new Object[] {"email" + t, "1234", "GChang"})
+				.toList();
+
+			jdbcTemplate.batchUpdate(sql, batchUser);
+		}
+
+
+		Instant end = Instant.now();
+		Duration timeTaken = Duration.between(start, end);
+
+		log.info("회원들 저장 시간 ={}", timeTaken.toMillis()); //435
+	}
 
 
 //    @Test
