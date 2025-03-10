@@ -19,8 +19,6 @@ public class RedisConfig {
 	@Value("${spring.data.redis.port}")
 	private int port;
 
-	//실제로는 password 까지
-
 	@Bean
 	public RedisConnectionFactory redisConnectionFactory() {
 		RedisStandaloneConfiguration config = new RedisStandaloneConfiguration(host, port);
@@ -33,18 +31,10 @@ public class RedisConfig {
 		RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
 		redisTemplate.setConnectionFactory(redisConnectionFactory());
 
-		// redisTemplate.setKeySerializer(new StringRedisSerializer());
-		// redisTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
-
 		// 일반적인 키 벨류의 경우 시리얼라이저
 		redisTemplate.setKeySerializer(new StringRedisSerializer());
 		redisTemplate.setValueSerializer(new StringRedisSerializer());
 
-		// hash 사용할 경우
-		// redisTemplate.setHashKeySerializer(new StringRedisSerializer());
-		// redisTemplate.setHashValueSerializer(new StringRedisSerializer());
-		//
-		// redisTemplate.setDefaultSerializer(new StringRedisSerializer());
 
 		return redisTemplate;
 	}

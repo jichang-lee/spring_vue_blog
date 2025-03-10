@@ -18,6 +18,11 @@ public class RedisUtil {
 		redisTemplate.opsForValue().set(key,value,expTime, TimeUnit.SECONDS);
 	}
 
+	public boolean exist(String key) {
+		Boolean exists = this.redisTemplate.hasKey(key);
+		return Boolean.TRUE.equals(exists);
+	}
+
 	public String get(String key) {
 		return redisTemplate.opsForValue().get(key);
 	}

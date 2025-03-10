@@ -2,8 +2,10 @@ package com.chang.log.service;
 
 import com.chang.log.config.CustomUserDetails;
 import com.chang.log.domain.User;
+import com.chang.log.domain.UserBlackList;
 import com.chang.log.exception.AlreadyExistsEmail;
 import com.chang.log.exception.UserNotFound;
+import com.chang.log.repository.UserBlackListRepository;
 import com.chang.log.repository.UserRepository;
 import com.chang.log.request.user.SignUp;
 import com.chang.log.request.user.UserEditor;
@@ -20,7 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +33,7 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final ImageService imageService;
+    private final UserBlackListRepository userBlackListRepository;
 
     public void signUp(SignUp signUp) {
 
@@ -50,6 +54,17 @@ public class UserService {
 
         userRepository.save(user);
 
+    }
+
+    @Transactional
+    public void addUserBlackList() {
+        List<User> blackListUser= userRepository.findByBlackUserYn("Y");
+
+        List<UserBlackList> blackListEntries = blackListUser.stream()
+            .map(user -> UserBlackList.builder().user(user).build())
+            .toList();
+
+        userBlackListRepository.saveAll(blackListEntries);
     }
 
 
