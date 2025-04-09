@@ -14,6 +14,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
@@ -51,29 +55,41 @@ class PostServiceTest {
 		postRepository.deleteAll();
     }
 
+	// @Test
+	// @DisplayName("bulkInsert")
+	// void createUsers() {
+	// 	Instant start = Instant.now();
+	//
+	// 	String sql = "INSERT INTO user (email, password, name) VALUES (?, ?, ?)";
+	//
+	// 	int batchSize = 10000; // 1만개 씩 처리
+	// 	int totalSize = 100000; 	//10만개의 데이터
+	//
+	// 	for (int i = 0; i < totalSize; i += batchSize) {
+	// 		List<Object[]> batchUser = IntStream.rangeClosed(i + 1, Math.min(i + batchSize, totalSize))
+	// 			.mapToObj(t -> new Object[] {"email" + t, "1234", "GChang"})
+	// 			.toList();
+	//
+	// 		jdbcTemplate.batchUpdate(sql, batchUser);
+	// 	}
+	//
+	//
+	// 	Instant end = Instant.now();
+	// 	Duration timeTaken = Duration.between(start, end);
+	//
+	// 	log.info("회원들 저장 시간 ={}", timeTaken.toMillis()); //435
+	// }
+
 	@Test
-	@DisplayName("bulkInsert")
-	void createUsers() {
-		Instant start = Instant.now();
+	@DisplayName("file test")
+	void testNote() throws Exception{
+		String path = "/Users/4usoft/Desktop/project/study/stduy_token/src/main/resources/dogZ.png";
+		File file = new File(path);
+		log.info("file ={}",file);
+		FileInputStream fileInputStream = new FileInputStream(file);
+		BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+		log.info("len ={}",bufferedInputStream.available());
 
-		String sql = "INSERT INTO user (email, password, name) VALUES (?, ?, ?)";
-
-		int batchSize = 10000; // 1만개 씩 처리
-		int totalSize = 100000; 	//10만개의 데이터
-
-		for (int i = 0; i < totalSize; i += batchSize) {
-			List<Object[]> batchUser = IntStream.rangeClosed(i + 1, Math.min(i + batchSize, totalSize))
-				.mapToObj(t -> new Object[] {"email" + t, "1234", "GChang"})
-				.toList();
-
-			jdbcTemplate.batchUpdate(sql, batchUser);
-		}
-
-
-		Instant end = Instant.now();
-		Duration timeTaken = Duration.between(start, end);
-
-		log.info("회원들 저장 시간 ={}", timeTaken.toMillis()); //435
 	}
 
 

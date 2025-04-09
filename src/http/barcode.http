@@ -1,2 +1,0 @@
-POST https://localhost:8099/barcode/write?B-3123
-Content-Type: application/json

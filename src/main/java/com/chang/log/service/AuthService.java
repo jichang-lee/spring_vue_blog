@@ -39,7 +39,7 @@ public class AuthService {
 	@Transactional
 	public Map<String,String> login(LoginRequest req) {
 		String email = req.getEmail();
-		var password = req.getPassword();
+		String password = req.getPassword();
 		User user = userRepository.findByEmail(email)
 			.orElseThrow(() -> new NoSuchElementException(email + " 회원 이메일을 찾을 수 없습니다."));
 
@@ -49,16 +49,13 @@ public class AuthService {
 
 		UserTokenInfo memberInfo = modelMapper.map(user, UserTokenInfo.class);
 
-		String refreshAccessToken = jwtUtil.createRefreshAccessToken(memberInfo);
 		String accessToken = jwtUtil.createAccessToken(memberInfo);
-
-
-		// redisService.saveToken(refreshTokenRedisKey,refreshAccessToken, jwtUtil.getRefreshTokenExpTime());
+		String refreshAccessToken = jwtUtil.createRefreshAccessToken(memberInfo);
 
 		HashMap<String, String> token = new HashMap<>();
-		// 관리자에서 로그인 유저를 제어하기 위해 accessToken put
 		token.put("accessToken",accessToken);
 		token.put("refreshToken",refreshAccessToken);
+
 		return token;
 	}
 

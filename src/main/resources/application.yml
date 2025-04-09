@@ -1,10 +1,9 @@
 server:
   port: 8099
-
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/study?serverTimezone=UTC&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/study?serverTimezone=UTC&characterEncoding=UTF-8&rewriteBatchedStatements=true
     username: study
     password: root
 
@@ -47,6 +46,5 @@ jwt:
   header : Authorization
   expiration_time: 10 #1일
 #  expiration_time: 86400000 #1일
-  refresh_expiration_time: 20 #1일
+  refresh_expiration_time: 200000000 #1일
   secret: 86b396ea240545aee0aa35daa40f03b9b2d51651382d4a3cdd02b0d304a93949
-

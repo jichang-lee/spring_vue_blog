@@ -58,6 +58,7 @@ public class PostControllerDocTest {
         String json = objectMapper.writeValueAsString(postCreate);
 
         mockMvc.perform(RestDocumentationRequestBuilders.post("/post/write")
+                .header("Authorization", "Bearer (accessToken)")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(json))
                 .andExpect(MockMvcResultMatchers.status().isOk())
