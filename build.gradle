@@ -3,6 +3,8 @@ plugins {
 	id 'org.springframework.boot' version '3.0.5'
 	id 'io.spring.dependency-management' version '1.0.11.RELEASE'
 	id "org.asciidoctor.jvm.convert" version "3.3.2"
+	id 'checkstyle'
+	id 'pmd'
 }
 
 group = 'org.spring'
@@ -110,5 +112,114 @@ sourceSets {
 	}
 }
 
+// Checkstyle 설정
+checkstyle {
+    toolVersion = '10.12.5'
+    configFile = file("${project.rootDir}/config/checkstyle/checkstyle.xml")
+    ignoreFailures = true
+    showViolations = true
+}
 
+// PMD 설정
+pmd {
+    toolVersion = '6.55.0'
+    ignoreFailures = true
+    ruleSetFiles = files("${project.rootDir}/config/pmd/pmd-ruleset.xml")
+    ruleSets = []
+}
 
+// CheckStyle 리포트 태스크
+checkstyleMain.doLast {
+    def checkstyleDir = new File("${project.buildDir}/reports/checkstyle/")
+    checkstyleDir.mkdirs()
+    def jsonReport = new File(checkstyleDir, "checkstyle-report.json")
+    def xmlReport = new File("${project.buildDir}/reports/checkstyle/main.xml")
+    
+    if (xmlReport.exists()) {
+        def checkstyleXml = new XmlParser().parse(xmlReport)
+        def files = []
+        
+        checkstyleXml.file.each { file ->
+            def fileName = file.@name
+            def violations = []
+            
+            file.error.each { error ->
+                violations << [
+                    line: error.@line,
+                    severity: error.@severity,
+                    message: error.@message,
+                    source: error.@source
+                ]
+            }
+            
+            if (violations.size() > 0) {
+                files << [
+                    name: fileName,
+                    violations: violations
+                ]
+            }
+        }
+        
+        def jsonOutput = [
+            timestamp: new Date().time,
+            files: files
+        ]
+        
+        // JSON 파일에 저장
+        jsonReport.text = groovy.json.JsonOutput.toJson(jsonOutput)
+    }
+}
+
+// PMD 리포트 태스크
+pmdMain.doLast {
+    def pmdDir = new File("${project.buildDir}/reports/pmd/")
+    pmdDir.mkdirs()
+    def jsonReport = new File(pmdDir, "pmd-report.json")
+    def xmlReport = new File("${project.buildDir}/reports/pmd/main.xml")
+    
+    if (xmlReport.exists()) {
+        def pmdXml = new XmlParser().parse(xmlReport)
+        def files = []
+        
+        pmdXml.file.each { file ->
+            def fileName = file.@name
+            def violations = []
+            
+            file.violation.each { violation ->
+                violations << [
+                    beginline: violation.@beginline,
+                    endline: violation.@endline,
+                    begincolumn: violation.@begincolumn,
+                    endcolumn: violation.@endcolumn,
+                    rule: violation.@rule,
+                    ruleset: violation.@ruleset,
+                    priority: violation.@priority,
+                    message: violation.text()
+                ]
+            }
+            
+            if (violations.size() > 0) {
+                files << [
+                    name: fileName,
+                    violations: violations
+                ]
+            }
+        }
+        
+        def jsonOutput = [
+            timestamp: new Date().time,
+            files: files
+        ]
+        
+        // JSON 파일에 저장
+        jsonReport.text = groovy.json.JsonOutput.toJson(jsonOutput)
+    }
+}
+
+// 코드 검사 통합 태스크
+task codeAnalysis {
+    dependsOn checkstyleMain, pmdMain
+    doLast {
+        println "Code analysis completed!"
+    }
+}
