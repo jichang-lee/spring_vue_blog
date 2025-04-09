@@ -1,0 +1,212 @@
+name: PR Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - develop
+
+jobs:
+  backend-review:
+    name: Backend Code Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+      
+      - name: Run Checkstyle
+        id: checkstyle
+        continue-on-error: true
+        run: ./gradlew checkstyleMain checkstyleTest
+      
+      - name: Run SpotBugs
+        id: spotbugs
+        continue-on-error: true
+        run: ./gradlew spotbugsMain
+      
+      - name: Run PMD
+        id: pmd
+        continue-on-error: true
+        run: ./gradlew pmdMain
+      
+      - name: Generate Backend Review Comment
+        id: backend-review
+        run: |
+          echo "### 백엔드 코드 리뷰 결과 📝" > backend-review.md
+          echo "" >> backend-review.md
+          
+          # Checkstyle 결과 확인
+          if [ "${{ steps.checkstyle.outcome }}" == "success" ]; then
+            echo "✅ **Checkstyle**: 모든 코딩 스타일 규칙을 준수하고 있습니다." >> backend-review.md
+          else
+            echo "❌ **Checkstyle**: 코딩 스타일 규칙 위반이 발견되었습니다." >> backend-review.md
+            echo "```" >> backend-review.md
+            if [ -f "build/reports/checkstyle/main.html" ]; then
+              cat build/reports/checkstyle/main.txt | head -20 >> backend-review.md
+              echo "..." >> backend-review.md
+            else
+              echo "리포트 파일을 찾을 수 없습니다." >> backend-review.md
+            fi
+            echo "```" >> backend-review.md
+          fi
+          
+          # SpotBugs 결과 확인
+          if [ "${{ steps.spotbugs.outcome }}" == "success" ]; then
+            echo "✅ **SpotBugs**: 잠재적인 버그가 발견되지 않았습니다." >> backend-review.md
+          else
+            echo "❌ **SpotBugs**: 잠재적인 버그가 발견되었습니다." >> backend-review.md
+            echo "자세한 내용은 SpotBugs 리포트를 확인해주세요." >> backend-review.md
+          fi
+          
+          # PMD 결과 확인
+          if [ "${{ steps.pmd.outcome }}" == "success" ]; then
+            echo "✅ **PMD**: 코드 품질 이슈가 발견되지 않았습니다." >> backend-review.md
+          else
+            echo "❌ **PMD**: 코드 품질 이슈가 발견되었습니다." >> backend-review.md
+            echo "```" >> backend-review.md
+            if [ -f "build/reports/pmd/main.html" ]; then
+              cat build/reports/pmd/main.txt | head -20 >> backend-review.md
+              echo "..." >> backend-review.md
+            else
+              echo "리포트 파일을 찾을 수 없습니다." >> backend-review.md
+            fi
+            echo "```" >> backend-review.md
+          fi
+          
+          echo "" >> backend-review.md
+          echo "### 개선 제안 💡" >> backend-review.md
+          echo "- 메서드 길이: 메서드는 가능한 20줄 이내로 작성하세요." >> backend-review.md
+          echo "- 주석: 모든 public 메서드와 클래스에 JavaDoc 주석을 추가하세요." >> backend-review.md
+          echo "- 변수명: 변수명은 카멜 케이스로 작성하고 의미있는 이름을 사용하세요." >> backend-review.md
+          echo "- 테스트: 모든 비즈니스 로직에 대한 단위 테스트를 작성하세요." >> backend-review.md
+          
+          cat backend-review.md
+
+      - name: Post Backend Review Comment
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const reviewContent = fs.readFileSync('backend-review.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: reviewContent
+            });
+
+  frontend-review:
+    name: Frontend Code Review
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+          
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'front/package-lock.json'
+          
+      - name: Install Dependencies
+        run: cd front && npm install
+      
+      - name: Run ESLint
+        id: eslint
+        continue-on-error: true
+        run: cd front && npm run lint || true
+      
+      - name: Run Vue Style Lint
+        id: stylelint
+        continue-on-error: true
+        run: cd front && npm run stylelint || true
+      
+      - name: Generate Frontend Review Comment
+        id: frontend-review
+        run: |
+          echo "### 프론트엔드 코드 리뷰 결과 📝" > frontend-review.md
+          echo "" >> frontend-review.md
+          
+          # ESLint 결과 확인
+          if [ "${{ steps.eslint.outcome }}" == "success" ]; then
+            echo "✅ **ESLint**: JavaScript/Vue 코드 스타일 규칙을 준수하고 있습니다." >> frontend-review.md
+          else
+            echo "❌ **ESLint**: JavaScript/Vue 코드 스타일 위반이 발견되었습니다." >> frontend-review.md
+            echo "```" >> frontend-review.md
+            cd front && npx eslint --format unix 'src/**/*.{js,vue}' | head -20 >> ../frontend-review.md || echo "ESLint 실행 중 오류가 발생했습니다." >> ../frontend-review.md
+            echo "..." >> ../frontend-review.md
+            echo "```" >> ../frontend-review.md
+          fi
+          
+          # StyleLint 결과 확인
+          if [ "${{ steps.stylelint.outcome }}" == "success" ]; then
+            echo "✅ **StyleLint**: CSS/SCSS 스타일 규칙을 준수하고 있습니다." >> frontend-review.md
+          else
+            echo "❌ **StyleLint**: CSS/SCSS 스타일 위반이 발견되었습니다." >> frontend-review.md
+          fi
+          
+          echo "" >> frontend-review.md
+          echo "### 개선 제안 💡" >> frontend-review.md
+          echo "- 컴포넌트 크기: 각 컴포넌트는 가능한 300줄 이내로 작성하세요." >> frontend-review.md
+          echo "- Props 검증: 모든 props에 타입과 필수 여부를 명시하세요." >> frontend-review.md
+          echo "- 명명 규칙: 컴포넌트 이름은 PascalCase, 메서드 이름은 camelCase로 작성하세요." >> frontend-review.md
+          echo "- 주석: 복잡한 로직에는 주석을 추가하세요." >> frontend-review.md
+          
+          cat frontend-review.md
+
+      - name: Post Frontend Review Comment
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const reviewContent = fs.readFileSync('frontend-review.md', 'utf8');
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: reviewContent
+            });
+
+  summary-review:
+    name: Summary Review
+    needs: [backend-review, frontend-review]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post Summary Comment
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## PR 코드 리뷰 요약 📊
+
+              이 PR에 대한 자동 코드 리뷰가 완료되었습니다. 각 영역별 상세 리뷰 결과를 확인해주세요.
+              
+              ### 개발자 체크리스트 ✓
+              - [ ] 백엔드 코드 컨벤션을 준수했는지 확인
+              - [ ] 프론트엔드 코드 컨벤션을 준수했는지 확인
+              - [ ] 테스트 코드를 작성했는지 확인
+              - [ ] 코드 리뷰 결과에 따라 수정사항을 반영했는지 확인
+              
+              코드 리뷰 결과에 문제가 있는 경우, 수정 후 다시 커밋해주세요.`
+            });
