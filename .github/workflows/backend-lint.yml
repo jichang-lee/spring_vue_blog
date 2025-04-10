@@ -30,6 +30,9 @@ jobs:
         run: ./gradlew checkstyleMain checkstyleTest --continue
         continue-on-error: true
 
+      - name: Install xml2js
+        run: npm install xml2js glob
+
       - name: Generate Checkstyle Report
         if: always()
         run: |
@@ -49,9 +52,9 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            const glob = require('glob');
             const path = require('path');
             const { parseString } = require('xml2js');
+            const glob = require('glob');
             
             const xmlFiles = glob.sync('checkstyle-results/*.xml');
             let allViolations = [];

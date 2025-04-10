@@ -62,11 +62,11 @@ public class AuthController {
 	}
 
 
-	// @PostMapping("/reissue")
-	// public ResponseEntity<Void> logout(@RequestHeader () {
-	// 	String jwt = token.replace("Bearer", "");
-	//
-	// }
+	@PostMapping("/reissue")
+	public ResponseEntity<Void> logout() {
+		// TODO: Implement token reissue logic
+		return ResponseEntity.ok().build();
+	}
 
 
 }
