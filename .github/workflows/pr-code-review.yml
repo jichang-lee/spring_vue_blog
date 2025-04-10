@@ -1,0 +1,134 @@
+name: PR Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  analyze:
+    name: Code Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Fetch all history for all branches and tags
+      
+      - name: Set up JDK 17
+        if: hashFiles('build.gradle') != ''
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+          
+      - name: Set up Node.js
+        if: hashFiles('front/package.json') != ''
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'front/package-lock.json'
+          
+      # Count lines of code changed
+      - name: Count changes
+        id: changes
+        run: |
+          git diff --stat ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} > changes.txt
+          
+          TOTAL_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | wc -l)
+          BACKEND_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- 'src/**' | wc -l)
+          FRONTEND_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} -- 'front/**' | wc -l)
+          
+          echo "total_files=$TOTAL_FILES" >> $GITHUB_OUTPUT
+          echo "backend_files=$BACKEND_FILES" >> $GITHUB_OUTPUT
+          echo "frontend_files=$FRONTEND_FILES" >> $GITHUB_OUTPUT
+          
+          CHANGED_LINES=$(git diff --shortstat ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | sed 's/[^0-9]/ /g' | awk '{print $2 + $3}')
+          echo "changed_lines=${CHANGED_LINES:-0}" >> $GITHUB_OUTPUT
+          
+      # Check for potential security issues - basic analysis
+      - name: Check for security issues
+        id: security
+        run: |
+          # Simple pattern-based security check
+          security_issues=0
+          
+          # Check for hard-coded credentials in Java files
+          if grep -r --include="*.java" -E "(password|secret|key|token|credential)s?\s*=\s*[\"'][^\"']+[\"']" src/ 2>/dev/null; then
+            echo "Found possible hardcoded credentials in Java code"
+            security_issues=$((security_issues + 1))
+          fi
+          
+          # Check for hard-coded credentials in JS/Vue files
+          if grep -r --include="*.{js,vue}" -E "(password|secret|key|token|credential)s?\s*=\s*[\"'][^\"']+[\"']" front/src/ 2>/dev/null; then
+            echo "Found possible hardcoded credentials in JavaScript/Vue code"
+            security_issues=$((security_issues + 1))
+          fi
+          
+          # Check for unsafe SQL in Java files
+          if grep -r --include="*.java" -E "execute(Query|Update)\(.*\+.*\)" src/ 2>/dev/null; then
+            echo "Found possible SQL injection vulnerability"
+            security_issues=$((security_issues + 1))
+          fi
+          
+          echo "issues_found=$security_issues" >> $GITHUB_OUTPUT
+          
+      # Generate a summary report
+      - name: Generate PR Review Summary
+        run: |
+          echo "## 📊 Pull Request Review Summary" > summary.md
+          echo "" >> summary.md
+          echo "### 🔍 Code Changes" >> summary.md
+          echo "" >> summary.md
+          echo "- **Files Changed:** ${{ steps.changes.outputs.total_files }}" >> summary.md
+          echo "- **Lines Changed:** ${{ steps.changes.outputs.changed_lines }}" >> summary.md
+          echo "- **Backend Files:** ${{ steps.changes.outputs.backend_files }}" >> summary.md
+          echo "- **Frontend Files:** ${{ steps.changes.outputs.frontend_files }}" >> summary.md
+          echo "" >> summary.md
+          
+          if [ "${{ steps.security.outputs.issues_found }}" -gt "0" ]; then
+            echo "### ⚠️ Security Considerations" >> summary.md
+            echo "" >> summary.md
+            echo "Potential security concerns were detected in this PR. Please review the code carefully for:" >> summary.md
+            echo "- Hardcoded credentials" >> summary.md
+            echo "- SQL injection vulnerabilities" >> summary.md
+            echo "- Proper input validation" >> summary.md
+            echo "" >> summary.md
+          fi
+          
+          echo "### 💡 Code Review Guidance" >> summary.md
+          echo "" >> summary.md
+          echo "When reviewing this PR, please check for:" >> summary.md
+          echo "- ✓ Code follows our [coding convention](../../blob/master/CODING_CONVENTION.md)" >> summary.md
+          echo "- ✓ Unit tests covering the changes" >> summary.md
+          echo "- ✓ Documentation updated (if applicable)" >> summary.md
+          echo "- ✓ No unnecessary commented-out code" >> summary.md
+          echo "- ✓ Proper error handling" >> summary.md
+          echo "" >> summary.md
+          
+          echo "### 📝 Automated Code Quality Checks" >> summary.md
+          echo "" >> summary.md
+          echo "For detailed code quality reports, please check the individual workflow results." >> summary.md
+          
+      - name: Comment on PR
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const summary = fs.readFileSync('summary.md', 'utf8');
+            const changes = fs.readFileSync('changes.txt', 'utf8');
+            
+            const comment = `${summary}\n\n<details>
+            <summary>📊 Detailed Changes</summary>\n
+            \`\`\`diff
+            ${changes}
+            \`\`\`
+            </details>`;
+            
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: comment
+            });
