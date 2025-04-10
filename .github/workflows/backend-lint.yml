@@ -49,7 +49,6 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            const glob = require('glob');
             const path = require('path');
             const { parseString } = require('xml2js');
             
