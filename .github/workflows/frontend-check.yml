@@ -1,0 +1,106 @@
+name: Frontend Code Quality Check
+
+on:
+  pull_request:
+    paths:
+      - 'front/**'
+      - '.github/workflows/frontend-check.yml'
+
+jobs:
+  lint:
+    name: ESLint & Prettier
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'front/package-lock.json'
+      
+      - name: Install Dependencies
+        run: cd front && npm ci
+      
+      - name: Run ESLint
+        id: eslint
+        run: cd front && npm run lint || echo "::set-output name=failed::true"
+        continue-on-error: true
+        
+      - name: Run Prettier Check
+        id: prettier
+        run: cd front && npx prettier --check "src/**/*.{js,vue,ts}" || echo "::set-output name=failed::true"
+        continue-on-error: true
+        
+      - name: Collect ESLint Reports
+        if: steps.eslint.outputs.failed == 'true'
+        run: |
+          cd front
+          npx eslint --output-file eslint-report.json --format json src/
+        continue-on-error: true
+        
+      - name: Upload ESLint Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: eslint-report
+          path: front/eslint-report.json
+          if-no-files-found: ignore
+          
+  pr-review:
+    name: Automated PR Review
+    runs-on: ubuntu-latest
+    needs: lint
+    if: always()
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Download all workflow run artifacts
+        uses: actions/download-artifact@v3
+        
+      - name: Generate PR comment
+        id: pr-comment
+        run: |
+          echo "### 📋 Frontend Code Review Results" > comment.md
+          echo "" >> comment.md
+          
+          if [ -f "eslint-report/eslint-report.json" ]; then
+            ISSUE_COUNT=$(grep -o "\"severity\":2" eslint-report/eslint-report.json | wc -l)
+            WARNING_COUNT=$(grep -o "\"severity\":1" eslint-report/eslint-report.json | wc -l)
+            
+            if [ "$ISSUE_COUNT" -gt 0 ] || [ "$WARNING_COUNT" -gt 0 ]; then
+              echo "#### ❌ ESLint Issues Found" >> comment.md
+              echo "" >> comment.md
+              echo "- **Errors:** $ISSUE_COUNT" >> comment.md
+              echo "- **Warnings:** $WARNING_COUNT" >> comment.md
+              echo "" >> comment.md
+              echo "Please fix the linting issues. Detailed reports are available in the build artifacts." >> comment.md
+            else
+              echo "#### ✅ ESLint: No issues found" >> comment.md
+            fi
+          else
+            echo "#### ✅ ESLint: Check passed (or report not available)" >> comment.md
+          fi
+          
+          echo "" >> comment.md
+          echo "👉 Please make sure your code follows our [coding convention](../../blob/master/CODING_CONVENTION.md)" >> comment.md
+          
+          cat comment.md
+          
+      - name: Comment on PR
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const comment = fs.readFileSync('comment.md', 'utf8');
+            const context = github.context;
+            if (context.payload.pull_request) {
+              github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: comment
+              });
+            }
