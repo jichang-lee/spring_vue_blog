@@ -1,0 +1,132 @@
+name: Backend Code Convention Check
+
+on:
+  pull_request:
+    paths:
+      - 'src/**/*.java'
+      - 'build.gradle'
+      - '.github/workflows/backend-lint.yml'
+
+jobs:
+  checkstyle:
+    name: Checkstyle
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Run Checkstyle
+        id: checkstyle
+        run: ./gradlew checkstyleMain checkstyleTest --continue
+        continue-on-error: true
+
+      - name: Generate Checkstyle Report
+        if: always()
+        run: |
+          mkdir -p checkstyle-results
+          find . -name "*.xml" -path "*/build/reports/checkstyle/*" -exec cp {} checkstyle-results/ \;
+
+      - name: Annotate Checkstyle Issues
+        if: always()
+        uses: jwgmeligmeyling/checkstyle-github-action@master
+        with:
+          path: 'checkstyle-results/*.xml'
+
+      - name: Create PR Comment for Checkstyle Issues
+        if: always()
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const glob = require('glob');
+            const path = require('path');
+            const { parseString } = require('xml2js');
+            
+            const xmlFiles = glob.sync('checkstyle-results/*.xml');
+            let allViolations = [];
+            
+            for (const file of xmlFiles) {
+              try {
+                const xmlContent = fs.readFileSync(file, 'utf8');
+                parseString(xmlContent, (err, result) => {
+                  if (!err && result && result.checkstyle && result.checkstyle.file) {
+                    result.checkstyle.file.forEach(fileResult => {
+                      if (fileResult.error) {
+                        const fileName = fileResult.$.name.replace(/^.*\/src\//, 'src/');
+                        fileResult.error.forEach(error => {
+                          allViolations.push({
+                            file: fileName,
+                            line: error.$.line,
+                            column: error.$.column,
+                            severity: error.$.severity,
+                            message: error.$.message,
+                            source: error.$.source
+                          });
+                        });
+                      }
+                    });
+                  }
+                });
+              } catch (e) {
+                console.error(`Error processing ${file}: ${e}`);
+              }
+            }
+            
+            if (allViolations.length === 0) {
+              const message = `✅ 백엔드 코드가 모든 코딩 컨벤션을 준수합니다!`;
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: message
+              });
+              return;
+            }
+            
+            // Group violations by file
+            const violationsByFile = {};
+            allViolations.forEach(violation => {
+              if (!violationsByFile[violation.file]) {
+                violationsByFile[violation.file] = [];
+              }
+              violationsByFile[violation.file].push(violation);
+            });
+            
+            let message = `## 백엔드 코딩 컨벤션 검사 결과\n\n`;
+            message += `총 ${allViolations.length}개의 위반사항이 발견되었습니다.\n\n`;
+            
+            for (const file in violationsByFile) {
+              message += `### ${file}\n\n`;
+              message += `| 라인 | 컬럼 | 심각도 | 메시지 |\n`;
+              message += `| ---- | ---- | ------ | ------ |\n`;
+              
+              violationsByFile[file].forEach(violation => {
+                message += `| ${violation.line} | ${violation.column} | ${violation.severity} | ${violation.message} |\n`;
+              });
+              
+              message += `\n`;
+            }
+            
+            message += `\n해당 이슈를 수정한 후 다시 PR을 업데이트해주세요. 코딩 컨벤션 문서: [CODING_CONVENTION.md](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/master/CODING_CONVENTION.md)`;
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
+      - name: Check Checkstyle Status
+        if: steps.checkstyle.outcome != 'success'
+        run: exit 1
