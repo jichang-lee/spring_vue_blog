@@ -63,9 +63,9 @@ public class AuthController {
 
 
 	@PostMapping("/reissue")
-	public ResponseEntity<Void> lOgout() {
-
-		return null;
+	public ResponseEntity<Void> logout() {
+		// TODO: Implement token reissue logic
+		return ResponseEntity.ok().build();
 	}
 
 
