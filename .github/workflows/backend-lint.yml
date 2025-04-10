@@ -33,7 +33,6 @@ jobs:
       - name: Install xml2js
         run: npm install xml2js glob
 
-
       - name: Generate Checkstyle Report
         if: always()
         run: |
@@ -55,6 +54,7 @@ jobs:
             const fs = require('fs');
             const path = require('path');
             const { parseString } = require('xml2js');
+            const glob = require('glob');
             
             const xmlFiles = glob.sync('checkstyle-results/*.xml');
             let allViolations = [];
