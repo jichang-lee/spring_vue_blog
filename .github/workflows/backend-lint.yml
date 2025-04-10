@@ -30,6 +30,10 @@ jobs:
         run: ./gradlew checkstyleMain checkstyleTest --continue
         continue-on-error: true
 
+      - name: Install xml2js
+        run: npm install xml2js glob
+
+
       - name: Generate Checkstyle Report
         if: always()
         run: |
