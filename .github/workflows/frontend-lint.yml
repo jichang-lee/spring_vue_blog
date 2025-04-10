@@ -1,0 +1,145 @@
+name: Frontend Code Convention Check
+
+on:
+  pull_request:
+    paths:
+      - 'front/**'
+      - '!front/node_modules/**'
+      - '.github/workflows/frontend-lint.yml'
+
+jobs:
+  eslint:
+    name: ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'front/package-lock.json'
+
+      - name: Install dependencies
+        run: cd front && npm ci
+
+      - name: Run ESLint
+        id: eslint
+        run: cd front && npx eslint --format json --output-file eslint-report.json src/ || true
+
+      - name: Run Prettier Check
+        id: prettier
+        run: cd front && npx prettier --check "src/**/*.{js,ts,vue}" --write || true
+
+      - name: Create PR Comment for Linting Issues
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            let message = '## 프론트엔드 코딩 컨벤션 검사 결과\n\n';
+            
+            // ESLint 결과 처리
+            try {
+              if (fs.existsSync('front/eslint-report.json')) {
+                const eslintResults = JSON.parse(fs.readFileSync('front/eslint-report.json', 'utf8'));
+                
+                // 에러 메시지가 있는 파일만 필터링
+                const filesWithErrors = eslintResults.filter(result => result.errorCount > 0 || result.warningCount > 0);
+                
+                if (filesWithErrors.length > 0) {
+                  message += '### ESLint 문제 발견\n\n';
+                  
+                  let totalErrors = 0;
+                  let totalWarnings = 0;
+                  
+                  filesWithErrors.forEach(file => {
+                    totalErrors += file.errorCount;
+                    totalWarnings += file.warningCount;
+                    
+                    if (file.messages.length > 0) {
+                      const relativePath = file.filePath.replace(/^.*?front\//, 'front/');
+                      message += `#### ${relativePath}\n\n`;
+                      message += '| 라인:컬럼 | 심각도 | 규칙 | 메시지 |\n';
+                      message += '| --- | --- | --- | --- |\n';
+                      
+                      file.messages.forEach(msg => {
+                        const severity = msg.severity === 1 ? '⚠️ 경고' : '❌ 오류';
+                        message += `| ${msg.line}:${msg.column} | ${severity} | ${msg.ruleId || '사용자 정의'} | ${msg.message} |\n`;
+                      });
+                      
+                      message += '\n';
+                    }
+                  });
+                  
+                  message += `**총계:** ${totalErrors} 오류, ${totalWarnings} 경고\n\n`;
+                } else {
+                  message += '✅ ESLint 검사 통과! 문제가 발견되지 않았습니다.\n\n';
+                }
+              } else {
+                message += '⚠️ ESLint 결과 파일을 찾을 수 없습니다.\n\n';
+              }
+            } catch (e) {
+              message += `⚠️ ESLint 결과 처리 중 오류 발생: ${e.message}\n\n`;
+            }
+            
+            // Prettier 결과는 종료 코드로만 확인 가능
+            message += `### Prettier 형식 검사\n\n`;
+            message += `${process.env.PRETTIER_EXIT_CODE === '0' ? '✅ 모든 파일이 Prettier 형식에 맞게 작성되었습니다.' : '⚠️ Prettier 형식에 맞지 않는 파일이 있습니다. 자동으로 수정을 시도했습니다.'}\n\n`;
+            
+            message += `\n해당 이슈를 수정한 후 다시 PR을 업데이트해주세요. 코딩 컨벤션 문서: [CODING_CONVENTION.md](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/master/CODING_CONVENTION.md)`;
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+
+  prettier:
+    name: Prettier Code Formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: 'front/package-lock.json'
+
+      - name: Install dependencies
+        run: cd front && npm ci
+
+      - name: Check formatting
+        id: prettier
+        run: cd front && npx prettier --check "src/**/*.{js,ts,vue}" || echo "Formatting issues found"
+
+      - name: Create PR comment with formatting issues
+        if: steps.prettier.outcome != 'success'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const message = `## Prettier 형식 검사 결과
+            
+            ⚠️ 프로젝트의 일부 파일이 코드 형식 규칙을 따르지 않습니다.
+            
+            다음 명령어를 실행하여 코드 형식을 수정할 수 있습니다:
+            \`\`\`
+            cd front
+            npx prettier --write "src/**/*.{js,ts,vue}"
+            \`\`\`
+            
+            코딩 컨벤션 문서: [CODING_CONVENTION.md](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/master/CODING_CONVENTION.md)`;
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
