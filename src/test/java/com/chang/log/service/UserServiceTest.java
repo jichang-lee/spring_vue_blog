@@ -79,11 +79,11 @@ class UserServiceTest {
                 .password("1234")
                 .build();
         //when
-        userService.userEdit(user.getId(), userEditor);
+        userService.userEdit(user.getUserId(), userEditor);
 
         //then
 
-        User findUser = userRepository.findById(user.getId())
+        User findUser = userRepository.findById(user.getUserId())
                 .orElseThrow(UserNotFound :: new);
 
         assertEquals("삼지창",findUser.getName());
@@ -105,7 +105,7 @@ class UserServiceTest {
         userRepository.save(user);
 
         //when
-        userService.findUser(user.getId());
+        userService.findUser(user.getUserId());
 
         //then
         assertEquals(1,userRepository.count());
@@ -129,7 +129,7 @@ class UserServiceTest {
         userRepository.save(user);
 
         //when
-        userService.userDelete(user.getId());
+        userService.userDelete(user.getUserId());
 
         //then
         assertEquals(0,userRepository.count());

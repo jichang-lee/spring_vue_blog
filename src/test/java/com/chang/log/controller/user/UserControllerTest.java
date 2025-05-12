@@ -87,7 +87,7 @@ class UserControllerTest {
         String json = objectMapper.writeValueAsString(userEditor);
 
         //expected
-        mockMvc.perform(patch("/user/edit/{userId}",user.getId())
+        mockMvc.perform(patch("/user/edit/{userId}",user.getUserId())
                 .contentType(APPLICATION_JSON)
                 .content(json))
                 .andExpect(status().isOk())
@@ -108,7 +108,7 @@ class UserControllerTest {
         userRepository.save(user);
 
         //expected
-        mockMvc.perform(MockMvcRequestBuilders.get("/user/myPage/{userId}",user.getId())
+        mockMvc.perform(MockMvcRequestBuilders.get("/user/myPage/{userId}",user.getUserId())
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name").value("이지창"))
@@ -129,7 +129,7 @@ class UserControllerTest {
         userRepository.save(user);
 
         //expected
-        mockMvc.perform(delete("/user/delete/{userId}",user.getId())
+        mockMvc.perform(delete("/user/delete/{userId}",user.getUserId())
                 .contentType(APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andDo(print());
