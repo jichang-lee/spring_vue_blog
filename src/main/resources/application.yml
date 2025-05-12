@@ -32,7 +32,9 @@ spring:
     multipart:
       max-file-size: 500MB
       max-request-size: 500MB
-
+  batch:
+    job:
+      enabled: false
 file:
   baseDir: /Users/ijichang/Desktop/upload
 
