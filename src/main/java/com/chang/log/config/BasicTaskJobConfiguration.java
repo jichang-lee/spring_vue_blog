@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
-import com.chang.log.controller.batch.GreetingTask;
+import com.chang.log.controller.batch.ManagerTask;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -24,21 +24,21 @@ public class BasicTaskJobConfiguration {
 	PlatformTransactionManager transactionManager;
 
 	@Bean
-	public Tasklet greetingTasklet() {
-		return new GreetingTask();
+	public Tasklet managerTasklet() {
+		return new ManagerTask();
 	}
 
 	@Bean
 	public Step step(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-		log.info("---------------init myStep ---------------");
+		log.info("---------------init step ---------------");
 		return new StepBuilder("myStep",jobRepository)
-			.tasklet(greetingTasklet(),transactionManager)
+			.tasklet(managerTasklet(),transactionManager)
 			.build();
 	}
 
 	@Bean
 	public Job myJob(Step step, JobRepository jobRepository) {
-		log.info("---------------init myJob ---------------");
+		log.info("---------------init job ---------------");
 		return new JobBuilder("myJob",jobRepository)
 			.incrementer(new RunIdIncrementer())
 			.start(step)
